@@ -1,0 +1,547 @@
+//Microsoft Developer Studio generated resource script.
+//
+#include "CPlotResource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_IMAGE_SETTINGS DIALOG DISCARDABLE  0, 0, 372, 206
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Image Plot Settings"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,315,185,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,261,185,50,14
+    GROUPBOX        "Plot Settings",IDC_STATIC,7,7,358,171
+    GROUPBOX        "Constraints",IDC_STATIC,13,87,167,47
+    GROUPBOX        "Grids",IDC_STATIC,185,19,174,133
+    CONTROL         "Show major horizontal grids",
+                    IDC_PS_MAJOR_HORIZONTAL_GRIDS,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,196,29,101,10
+    CONTROL         "Show minor horizontal grids",IDC_MINOR_HORIZONTAL_GRIDS,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,196,92,101,10
+    CONTROL         "Show major vertical grids",IDC_PS_MAJOR_VERTICAL_GRIDS,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,196,40,94,10
+    CONTROL         "Show minor vertical grids",IDC_MINOR_VERTICAL_GRIDS,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,196,103,94,10
+    LTEXT           "Major grids",IDC_STATIC,99,144,35,8
+    CONTROL         "Custom1",IDC_PS_COLOR_MAJOR_GRIDS,"colorcontrol",
+                    WS_TABSTOP,140,144,29,8
+    LTEXT           "Minor grids",IDC_STATIC,99,158,35,8
+    CONTROL         "Custom1",IDC_PS_COLOR_MINOR_GRIDS,"colorcontrol",
+                    WS_TABSTOP,140,158,30,8
+    GROUPBOX        "Title",IDC_STATIC,13,19,168,67
+    LTEXT           "Title",IDC_STATIC,19,31,14,8
+    EDITTEXT        IDC_PS_PLOT_TITLE,39,28,133,14,ES_AUTOHSCROLL
+    LTEXT           "Font",IDC_STATIC,20,49,15,8
+    LTEXT           "Title font description",IDC_PS_TITLE_FONT,39,49,75,19
+    PUSHBUTTON      "Choose Font...",IDC_PS_CHOOSE_TITLE_FONT,117,49,56,14
+    LTEXT           "Color:",IDC_STATIC,20,73,19,8
+    CONTROL         "Custom1",IDC_PS_COLOR_TITLE_FONT,"colorcontrol",
+                    WS_TABSTOP,43,73,35,8
+    GROUPBOX        "Colors",IDC_STATIC,12,135,168,36
+    LTEXT           "Background",IDC_STATIC,17,144,40,8
+    LTEXT           "Border",IDC_STATIC,17,158,22,8
+    CONTROL         "Custom1",IDC_PS_COLOR_BACKGROUND,"colorcontrol",
+                    WS_TABSTOP,61,144,31,8
+    CONTROL         "Custom1",IDC_PS_COLOR_BORDER,"colorcontrol",WS_TABSTOP,
+                    61,158,31,8
+    CONTROL         "Scale image to size of window",IDC_PLOT_TO_SIZE,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,23,96,111,10
+    CONTROL         "Maintain aspect ratio of image",
+                    IDC_MAINTAIN_ASPECT_RATIO,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,38,108,110,10
+    LTEXT           "Note: Scaling may yield an inaccurate view",IDC_STATIC,
+                    19,122,136,8
+    LTEXT           "Major grid size",IDC_STATIC,195,54,46,8
+    LTEXT           "Minor grid size",IDC_STATIC,195,116,46,8
+    EDITTEXT        IDC_MAJOR_GRID_SIZE,243,52,23,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_MINOR_GRID_SIZE,246,113,23,14,ES_AUTOHSCROLL
+    LTEXT           "Line style:",IDC_STATIC,195,73,32,8
+    COMBOBOX        IDC_PLOT_MAJOR_LINESTYLE,231,70,121,113,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Line style:",IDC_STATIC,196,134,32,8
+    COMBOBOX        IDC_PLOT_MINOR_LINESTYLE,232,131,121,113,
+                    CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+END
+
+IDD_XY_SETTINGS DIALOG DISCARDABLE  0, 0, 372, 204
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "XY Plot Settings"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,315,183,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,261,183,50,14
+    GROUPBOX        "Plot Settings",IDC_STATIC,7,7,358,170
+    GROUPBOX        "Plotting Ranges",IDC_STATIC,13,87,167,47
+    LTEXT           "X Range",IDC_STATIC,21,100,29,8
+    LTEXT           "Y Range",IDC_STATIC,21,118,29,8
+    EDITTEXT        IDC_PS_XRANGE_LOW,55,98,33,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_PS_XRANGE_HIGH,100,98,33,14,ES_AUTOHSCROLL
+    CTEXT           "-",IDC_STATIC,90,100,8,8
+    EDITTEXT        IDC_PS_YRANGE_LOW,55,116,33,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_PS_YRANGE_HIGH,100,116,33,14,ES_AUTOHSCROLL
+    CTEXT           "-",IDC_STATIC,90,118,8,8
+    CONTROL         "Auto",IDC_PS_AUTO_XRANGE,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,137,101,31,10
+    CONTROL         "Auto",IDC_PS_AUTO_YRANGE,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,137,119,31,10
+    GROUPBOX        "Grids",IDC_STATIC,185,19,174,132
+    CONTROL         "Show major horizontal grids",
+                    IDC_PS_MAJOR_HORIZONTAL_GRIDS,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,196,29,101,10
+    CONTROL         "Show minor horizontal grids",IDC_MINOR_HORIZONTAL_GRIDS,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,196,91,101,10
+    CONTROL         "Show major vertical grids",IDC_PS_MAJOR_VERTICAL_GRIDS,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,196,40,94,10
+    CONTROL         "Show minor vertical grids",IDC_MINOR_VERTICAL_GRIDS,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,196,102,94,10
+    LTEXT           "Major grids",IDC_STATIC,100,146,35,8
+    CONTROL         "Custom1",IDC_PS_COLOR_MAJOR_GRIDS,"colorcontrol",
+                    WS_TABSTOP,141,146,29,8
+    LTEXT           "Minor grids",IDC_STATIC,100,160,35,8
+    CONTROL         "Custom1",IDC_PS_COLOR_MINOR_GRIDS,"colorcontrol",
+                    WS_TABSTOP,141,160,30,8
+    GROUPBOX        "Title",IDC_STATIC,13,19,168,67
+    LTEXT           "Title",IDC_STATIC,19,31,14,8
+    EDITTEXT        IDC_PS_PLOT_TITLE,39,28,133,14,ES_AUTOHSCROLL
+    LTEXT           "Font",IDC_STATIC,20,49,15,8
+    LTEXT           "Title font description",IDC_PS_TITLE_FONT,39,49,75,19
+    PUSHBUTTON      "Choose Font...",IDC_PS_CHOOSE_TITLE_FONT,117,49,56,14
+    LTEXT           "Color:",IDC_STATIC,20,73,19,8
+    CONTROL         "Custom1",IDC_PS_COLOR_TITLE_FONT,"colorcontrol",
+                    WS_TABSTOP,43,73,35,8
+    GROUPBOX        "Colors",IDC_STATIC,13,135,167,36
+    LTEXT           "Background",IDC_STATIC,18,146,40,8
+    LTEXT           "Border",IDC_STATIC,18,160,22,8
+    CONTROL         "Custom1",IDC_PS_COLOR_BACKGROUND,"colorcontrol",
+                    WS_TABSTOP,62,146,30,8
+    CONTROL         "Custom1",IDC_PS_COLOR_BORDER,"colorcontrol",WS_TABSTOP,
+                    62,160,29,8
+    LTEXT           "Major grid size",IDC_STATIC,196,55,46,8
+    LTEXT           "Minor grid size",IDC_STATIC,195,117,46,8
+    EDITTEXT        IDC_MAJOR_GRID_SIZE,244,53,23,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_MINOR_GRID_SIZE,246,114,23,14,ES_AUTOHSCROLL
+    LTEXT           "Line style:",IDC_STATIC,195,73,32,8
+    COMBOBOX        IDC_PLOT_MAJOR_LINESTYLE,231,70,121,113,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Line style:",IDC_STATIC,196,134,32,8
+    COMBOBOX        IDC_PLOT_MINOR_LINESTYLE,232,131,121,113,
+                    CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    IDD_IMAGE_SETTINGS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 365
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 199
+    END
+
+    IDD_XY_SETTINGS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 365
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 197
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog Info
+//
+
+IDD_IMAGE_SETTINGS DLGINIT
+BEGIN
+    IDC_PLOT_MAJOR_LINESTYLE, 0x403, 30, 0
+0x6f53, 0x696c, 0x2064, 0x5f5f, 0x5f5f, 0x5f5f, 0x5f5f, 0x5f5f, 0x5f5f, 
+0x5f5f, 0x5f5f, 0x5f5f, 0x5f5f, 0x5f5f, 0x005f, 
+    IDC_PLOT_MAJOR_LINESTYLE, 0x403, 35, 0
+0x6144, 0x6873, 0x6465, 0x5f20, 0x5f20, 0x5f20, 0x5f20, 0x5f20, 0x5f20, 
+0x5f20, 0x5f20, 0x5f20, 0x5f20, 0x5f20, 0x5f20, 0x5f20, 0x5f20, "\000" 
+    IDC_PLOT_MAJOR_LINESTYLE, 0x403, 51, 0
+0x6f44, 0x7474, 0x6465, 0x2e20, 0x2e20, 0x2e20, 0x2e20, 0x2e20, 0x2e20, 
+0x2e20, 0x2e20, 0x2e20, 0x2e20, 0x2e20, 0x2e20, 0x2e20, 0x2e20, 0x2e20, 
+0x2e20, 0x2e20, 0x2e20, 0x2e20, 0x2e20, 0x2e20, 0x2e20, "\000" 
+    IDC_PLOT_MAJOR_LINESTYLE, 0x403, 41, 0
+0x6144, 0x6873, 0x442d, 0x746f, 0x5f20, 0x2e20, 0x5f20, 0x2e20, 0x5f20, 
+0x2e20, 0x5f20, 0x2e20, 0x5f20, 0x2e20, 0x5f20, 0x2e20, 0x5f20, 0x2e20, 
+0x5f20, 0x2e20, "\000" 
+    IDC_PLOT_MAJOR_LINESTYLE, 0x403, 41, 0
+0x6144, 0x6873, 0x442d, 0x746f, 0x442d, 0x746f, 0x5f20, 0x2e20, 0x2e20, 
+0x5f20, 0x2e20, 0x2e20, 0x5f20, 0x2e20, 0x2e20, 0x5f20, 0x2e20, 0x2e20, 
+0x5f20, 0x2e20, "\000" 
+    IDC_PLOT_MINOR_LINESTYLE, 0x403, 30, 0
+0x6f53, 0x696c, 0x2064, 0x5f5f, 0x5f5f, 0x5f5f, 0x5f5f, 0x5f5f, 0x5f5f, 
+0x5f5f, 0x5f5f, 0x5f5f, 0x5f5f, 0x5f5f, 0x005f, 
+    IDC_PLOT_MINOR_LINESTYLE, 0x403, 35, 0
+0x6144, 0x6873, 0x6465, 0x5f20, 0x5f20, 0x5f20, 0x5f20, 0x5f20, 0x5f20, 
+0x5f20, 0x5f20, 0x5f20, 0x5f20, 0x5f20, 0x5f20, 0x5f20, 0x5f20, "\000" 
+    IDC_PLOT_MINOR_LINESTYLE, 0x403, 51, 0
+0x6f44, 0x7474, 0x6465, 0x2e20, 0x2e20, 0x2e20, 0x2e20, 0x2e20, 0x2e20, 
+0x2e20, 0x2e20, 0x2e20, 0x2e20, 0x2e20, 0x2e20, 0x2e20, 0x2e20, 0x2e20, 
+0x2e20, 0x2e20, 0x2e20, 0x2e20, 0x2e20, 0x2e20, 0x2e20, "\000" 
+    IDC_PLOT_MINOR_LINESTYLE, 0x403, 41, 0
+0x6144, 0x6873, 0x442d, 0x746f, 0x5f20, 0x2e20, 0x5f20, 0x2e20, 0x5f20, 
+0x2e20, 0x5f20, 0x2e20, 0x5f20, 0x2e20, 0x5f20, 0x2e20, 0x5f20, 0x2e20, 
+0x5f20, 0x2e20, "\000" 
+    IDC_PLOT_MINOR_LINESTYLE, 0x403, 41, 0
+0x6144, 0x6873, 0x442d, 0x746f, 0x442d, 0x746f, 0x5f20, 0x2e20, 0x2e20, 
+0x5f20, 0x2e20, 0x2e20, 0x5f20, 0x2e20, 0x2e20, 0x5f20, 0x2e20, 0x2e20, 
+0x5f20, 0x2e20, "\000" 
+    0
+END
+
+IDD_XY_SETTINGS DLGINIT
+BEGIN
+    IDC_PLOT_MAJOR_LINESTYLE, 0x403, 30, 0
+0x6f53, 0x696c, 0x2064, 0x5f5f, 0x5f5f, 0x5f5f, 0x5f5f, 0x5f5f, 0x5f5f, 
+0x5f5f, 0x5f5f, 0x5f5f, 0x5f5f, 0x5f5f, 0x005f, 
+    IDC_PLOT_MAJOR_LINESTYLE, 0x403, 35, 0
+0x6144, 0x6873, 0x6465, 0x5f20, 0x5f20, 0x5f20, 0x5f20, 0x5f20, 0x5f20, 
+0x5f20, 0x5f20, 0x5f20, 0x5f20, 0x5f20, 0x5f20, 0x5f20, 0x5f20, "\000" 
+    IDC_PLOT_MAJOR_LINESTYLE, 0x403, 51, 0
+0x6f44, 0x7474, 0x6465, 0x2e20, 0x2e20, 0x2e20, 0x2e20, 0x2e20, 0x2e20, 
+0x2e20, 0x2e20, 0x2e20, 0x2e20, 0x2e20, 0x2e20, 0x2e20, 0x2e20, 0x2e20, 
+0x2e20, 0x2e20, 0x2e20, 0x2e20, 0x2e20, 0x2e20, 0x2e20, "\000" 
+    IDC_PLOT_MAJOR_LINESTYLE, 0x403, 41, 0
+0x6144, 0x6873, 0x442d, 0x746f, 0x5f20, 0x2e20, 0x5f20, 0x2e20, 0x5f20, 
+0x2e20, 0x5f20, 0x2e20, 0x5f20, 0x2e20, 0x5f20, 0x2e20, 0x5f20, 0x2e20, 
+0x5f20, 0x2e20, "\000" 
+    IDC_PLOT_MAJOR_LINESTYLE, 0x403, 41, 0
+0x6144, 0x6873, 0x442d, 0x746f, 0x442d, 0x746f, 0x5f20, 0x2e20, 0x2e20, 
+0x5f20, 0x2e20, 0x2e20, 0x5f20, 0x2e20, 0x2e20, 0x5f20, 0x2e20, 0x2e20, 
+0x5f20, 0x2e20, "\000" 
+    IDC_PLOT_MINOR_LINESTYLE, 0x403, 30, 0
+0x6f53, 0x696c, 0x2064, 0x5f5f, 0x5f5f, 0x5f5f, 0x5f5f, 0x5f5f, 0x5f5f, 
+0x5f5f, 0x5f5f, 0x5f5f, 0x5f5f, 0x5f5f, 0x005f, 
+    IDC_PLOT_MINOR_LINESTYLE, 0x403, 35, 0
+0x6144, 0x6873, 0x6465, 0x5f20, 0x5f20, 0x5f20, 0x5f20, 0x5f20, 0x5f20, 
+0x5f20, 0x5f20, 0x5f20, 0x5f20, 0x5f20, 0x5f20, 0x5f20, 0x5f20, "\000" 
+    IDC_PLOT_MINOR_LINESTYLE, 0x403, 51, 0
+0x6f44, 0x7474, 0x6465, 0x2e20, 0x2e20, 0x2e20, 0x2e20, 0x2e20, 0x2e20, 
+0x2e20, 0x2e20, 0x2e20, 0x2e20, 0x2e20, 0x2e20, 0x2e20, 0x2e20, 0x2e20, 
+0x2e20, 0x2e20, 0x2e20, 0x2e20, 0x2e20, 0x2e20, 0x2e20, "\000" 
+    IDC_PLOT_MINOR_LINESTYLE, 0x403, 41, 0
+0x6144, 0x6873, 0x442d, 0x746f, 0x5f20, 0x2e20, 0x5f20, 0x2e20, 0x5f20, 
+0x2e20, 0x5f20, 0x2e20, 0x5f20, 0x2e20, 0x5f20, 0x2e20, 0x5f20, 0x2e20, 
+0x5f20, 0x2e20, "\000" 
+    IDC_PLOT_MINOR_LINESTYLE, 0x403, 41, 0
+0x6144, 0x6873, 0x442d, 0x746f, 0x442d, 0x746f, 0x5f20, 0x2e20, 0x2e20, 
+0x5f20, 0x2e20, 0x2e20, 0x5f20, 0x2e20, 0x2e20, 0x5f20, 0x2e20, 0x2e20, 
+0x5f20, 0x2e20, "\000" 
+    0
+END
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// English (New Zealand) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENZ)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_NZ
+#pragma code_page(1252)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_AXIS_SETTINGS DIALOG DISCARDABLE  0, 0, 367, 166
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Axis Settings"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,310,145,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,256,145,50,14
+    PUSHBUTTON      "<< Previous",IDC_AXIS_PREVIOUS,7,145,50,14
+    PUSHBUTTON      "Next >>",IDC_AXIS_NEXT,59,145,50,14
+    GROUPBOX        "Axis 1 of 2",IDC_AXIS_LABEL,7,7,353,135
+    GROUPBOX        "Range",IDC_STATIC,186,96,168,32
+    EDITTEXT        IDC_AS_XRANGE_LOW,192,108,33,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_AS_XRANGE_HIGH,237,108,33,14,ES_AUTOHSCROLL
+    CTEXT           "-",IDC_STATIC,227,111,8,8
+    CONTROL         "Auto",IDC_AS_AUTO_XRANGE,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,274,111,31,10
+    GROUPBOX        "Tick marks",IDC_STATIC,186,17,167,77
+    LTEXT           "Number of major ticks",IDC_STATIC,194,29,69,8
+    LTEXT           "Number of minor ticks",IDC_STATIC,194,63,69,8
+    EDITTEXT        IDC_NUMBER_MAJOR_TICKS,267,26,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_AS_NUMBER_MINOR_TICKS,267,60,40,14,ES_AUTOHSCROLL
+    CONTROL         "Auto",IDC_AS_AUTO_MAJOR_TICKS,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,310,28,31,10
+    CONTROL         "Auto",IDC_AS_AUTO_MINOR_TICKS,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,310,62,31,10
+    GROUPBOX        "Title",IDC_STATIC,14,17,168,67
+    LTEXT           "Title",IDC_STATIC,20,29,14,8
+    EDITTEXT        IDC_AS_PLOT_TITLE,40,26,133,14,ES_AUTOHSCROLL
+    LTEXT           "Font",IDC_STATIC,21,47,15,8
+    LTEXT           "Title font description",IDC_PS_TITLE_FONT,40,47,75,19
+    PUSHBUTTON      "Choose Font...",IDC_AS_CHOOSE_TITLE_FONT,118,47,56,14
+    LTEXT           "Color:",IDC_STATIC,21,71,19,8
+    CONTROL         "Custom1",IDC_AS_COLOR_TITLE_FONT,"colorcontrol",
+                    WS_TABSTOP,44,71,35,8
+    CONTROL         "Custom1",IDC_AS_COLOR_LINE,"colorcontrol",WS_TABSTOP,45,
+                    122,35,8
+    LTEXT           "Length",IDC_STATIC,211,45,23,8
+    EDITTEXT        IDC_AS_MAJOR_TICK_LENGTH,239,43,40,14,ES_AUTOHSCROLL
+    LTEXT           "mm",IDC_STATIC,283,45,12,8
+    LTEXT           "Length",IDC_STATIC,211,79,23,8
+    EDITTEXT        IDC_AS_MINOR_TICK_LENGTH,239,77,40,14,ES_AUTOHSCROLL
+    LTEXT           "mm",IDC_STATIC,283,79,12,8
+    GROUPBOX        "Tick labels",IDC_STATIC,14,86,168,50
+    LTEXT           "Font",IDC_STATIC,21,98,15,8
+    LTEXT           "Title font description",IDC_AS_LABEL_FONT,40,98,75,19
+    PUSHBUTTON      "Choose Font...",IDC_AS_CHOOSE_LABEL_FONT,118,98,56,14
+    LTEXT           "Color:",IDC_STATIC,21,122,19,8
+END
+
+IDD_DATA_SETTINGS DIALOG DISCARDABLE  0, 0, 367, 165
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Data Settings"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,310,144,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,256,144,50,14
+    PUSHBUTTON      "<< Previous",IDC_DATA_PREVIOUS,7,144,50,14
+    PUSHBUTTON      "Next >>",IDC_DATA_NEXT,59,144,50,14
+    GROUPBOX        "Data set 1 of 2",IDC_DATASET_LABEL,7,7,353,131
+    GROUPBOX        "Markers",IDC_STATIC,186,17,167,100
+    GROUPBOX        "Title",IDC_STATIC,14,17,168,27
+    LTEXT           "Title",IDC_STATIC,20,29,14,8
+    EDITTEXT        IDC_DS_DATA_TITLE,40,26,133,14,ES_AUTOHSCROLL
+    CONTROL         "Custom1",IDC_DS_COLOR_LINE,"colorcontrol",WS_TABSTOP,44,
+                    57,35,8
+    GROUPBOX        "Chart type",IDC_STATIC,14,104,168,31
+    LTEXT           "Color:",IDC_STATIC,20,56,19,8
+    GROUPBOX        "Line",IDC_STATIC,13,47,168,57
+    LTEXT           "Shape",IDC_STATIC,192,28,22,8
+    LTEXT           "Size",IDC_STATIC,193,44,14,8
+    EDITTEXT        IDC_MARKER_SIZE,213,42,40,14,ES_AUTOHSCROLL
+    LTEXT           "mm",IDC_STATIC,257,44,12,8
+    LTEXT           "Frequency",IDC_STATIC,192,59,34,8
+    CONTROL         "Every data point",IDC_MARKER_FREQUENCY_EVERY,"Button",
+                    BS_AUTORADIOBUTTON,201,69,67,10
+    CONTROL         "Every",IDC_MARKER_FREQUENCY_NTH,"Button",
+                    BS_AUTORADIOBUTTON,201,82,34,10
+    EDITTEXT        IDC_MARKER_FREQUENCY_NUMBER,235,80,40,14,ES_AUTOHSCROLL
+    LTEXT           "data points",IDC_STATIC,278,83,36,8
+    CONTROL         "A total of",IDC_MARKER_FREQUENCY_TOTAL,"Button",
+                    BS_AUTORADIOBUTTON,201,99,44,10
+    EDITTEXT        IDC_MARKER_FREQUENCY_TOTAL_DATA,245,97,40,14,
+                    ES_AUTOHSCROLL
+    LTEXT           "markers",IDC_STATIC,288,99,26,8
+    COMBOBOX        IDC_MARKER_SHAPE,219,26,124,119,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_CHART_TYPE,19,115,156,100,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Size:",IDC_STATIC,21,71,16,8
+    EDITTEXT        IDC_DATA_LINE_SIZE,44,68,40,14,ES_AUTOHSCROLL
+    CONTROL         "Filled",IDC_DATA_MARKER_FILL,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,280,44,32,10
+    LTEXT           "Style:",IDC_STATIC,21,88,18,8
+    COMBOBOX        IDC_DATA_LINESTYLE,44,86,131,113,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    IDD_AXIS_SETTINGS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 360
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 159
+    END
+
+    IDD_DATA_SETTINGS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 360
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 158
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "CPlotResource.h\0"
+END
+
+2 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// COLORTABLE
+//
+
+IDR_CT_16LEVEL          COLORTABLE DISCARDABLE  "CPlotResources\\res\\16 LEVEL.bin"
+IDR_CT_BEACH            COLORTABLE DISCARDABLE  "CPlotResources\\res\\Beach.bin"
+IDR_CT_BLUEPASTELRED    COLORTABLE DISCARDABLE  "CPlotResources\\res\\Blue - Pastel - Red.bin"
+IDR_CT_BLUERED          COLORTABLE DISCARDABLE  "CPlotResources\\res\\BLUE-RED.bin"
+IDR_CT_BLUEWAVES        COLORTABLE DISCARDABLE  "CPlotResources\\res\\Blue Waves.bin"
+IDR_CT_BWLINEAR         COLORTABLE DISCARDABLE  "CPlotResources\\res\\B-W LINEAR.bin"
+IDR_CT_EOSA             COLORTABLE DISCARDABLE  "CPlotResources\\res\\Eos A.bin"
+IDR_CT_EOSB             COLORTABLE DISCARDABLE  "CPlotResources\\res\\Eos B.bin"
+IDR_CT_GREENPINK        COLORTABLE DISCARDABLE  "CPlotResources\\res\\GREEN-PINK.bin"
+IDR_CT_GREENREDBLUEWHITE COLORTABLE DISCARDABLE  "CPlotResources\\res\\GRN-RED-BLU-WHT.bin"
+IDR_CT_HARDCANDY        COLORTABLE DISCARDABLE  "CPlotResources\\res\\Hardcandy.bin"
+IDR_CT_HAZE             COLORTABLE DISCARDABLE  "CPlotResources\\res\\Haze.bin"
+IDR_CT_HSV1             COLORTABLE DISCARDABLE  "CPlotResources\\res\\Hue Sat Lightness 1.bin"
+IDR_CT_HSV2             COLORTABLE DISCARDABLE  "CPlotResources\\res\\Hue Sat Lightness 2.bin"
+IDR_CT_MACSTYLE         COLORTABLE DISCARDABLE  "CPlotResources\\res\\Mac Style.bin"
+IDR_CT_NATURE           COLORTABLE DISCARDABLE  "CPlotResources\\res\\Nature.bin"
+IDR_CT_OCEAN            COLORTABLE DISCARDABLE  "CPlotResources\\res\\Ocean.bin"
+IDR_CT_PASTELS          COLORTABLE DISCARDABLE  "CPlotResources\\res\\Pastels.bin"
+IDR_CT_PEPPERMINT       COLORTABLE DISCARDABLE  "CPlotResources\\res\\Peppermint.bin"
+IDR_CT_PLASMA           COLORTABLE DISCARDABLE  "CPlotResources\\res\\Plasma.bin"
+IDR_CT_PRISM            COLORTABLE DISCARDABLE  "CPlotResources\\res\\PRISM.bin"
+IDR_CT_PURPLEREDSTRIPES COLORTABLE DISCARDABLE  "CPlotResources\\res\\Purple-Red + Stripes.bin"
+IDR_CT_RAINBOW          COLORTABLE DISCARDABLE  "CPlotResources\\res\\RAINBOW.bin"
+IDR_CT_RAINBOW18        COLORTABLE DISCARDABLE  "CPlotResources\\res\\Rainbow18.bin"
+IDR_CT_RAINBOWBLACK     COLORTABLE DISCARDABLE  "CPlotResources\\res\\Rainbow + black.bin"
+IDR_CT_RAINBOWWHITE     COLORTABLE DISCARDABLE  "CPlotResources\\res\\Rainbow + white.bin"
+IDR_CT_REDPURPLE        COLORTABLE DISCARDABLE  "CPlotResources\\res\\RED-PURPLE.bin"
+IDR_CT_REDTEMPERATURE   COLORTABLE DISCARDABLE  "CPlotResources\\res\\RED TEMPERATURE.bin"
+IDR_CT_STDGAMMAII       COLORTABLE DISCARDABLE  "CPlotResources\\res\\STD GAMMA-II.bin"
+IDR_CT_STEPS            COLORTABLE DISCARDABLE  "CPlotResources\\res\\STEPS.bin"
+IDR_CT_STERNSPECIAL     COLORTABLE DISCARDABLE  "CPlotResources\\res\\STERN SPECIAL.bin"
+IDR_CT_VOLCANO          COLORTABLE DISCARDABLE  "CPlotResources\\res\\Volcano.bin"
+IDR_CT_WAVES            COLORTABLE DISCARDABLE  "CPlotResources\\res\\Waves.bin"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog Info
+//
+
+IDD_DATA_SETTINGS DLGINIT
+BEGIN
+    IDC_MARKER_SHAPE, 0x403, 11, 0
+0x6f4e, 0x6d20, 0x7261, 0x656b, 0x7372, "\000" 
+    IDC_MARKER_SHAPE, 0x403, 7, 0
+0x7153, 0x6175, 0x6572, "\000" 
+    IDC_MARKER_SHAPE, 0x403, 9, 0
+0x7254, 0x6169, 0x676e, 0x656c, "\000" 
+    IDC_MARKER_SHAPE, 0x403, 7, 0
+0x6943, 0x6372, 0x656c, "\000" 
+    IDC_MARKER_SHAPE, 0x403, 2, 0
+0x0058, 
+    IDC_CHART_TYPE, 0x403, 8, 0
+0x6353, 0x7461, 0x6574, 0x0072, 
+    IDC_CHART_TYPE, 0x403, 10, 0
+0x6f43, 0x6e6e, 0x6365, 0x6574, 0x0064, 
+    IDC_CHART_TYPE, 0x403, 10, 0
+0x6948, 0x7473, 0x676f, 0x6172, 0x006d, 
+    IDC_DATA_LINESTYLE, 0x403, 30, 0
+0x6f53, 0x696c, 0x2064, 0x5f5f, 0x5f5f, 0x5f5f, 0x5f5f, 0x5f5f, 0x5f5f, 
+0x5f5f, 0x5f5f, 0x5f5f, 0x5f5f, 0x5f5f, 0x005f, 
+    IDC_DATA_LINESTYLE, 0x403, 35, 0
+0x6144, 0x6873, 0x6465, 0x5f20, 0x5f20, 0x5f20, 0x5f20, 0x5f20, 0x5f20, 
+0x5f20, 0x5f20, 0x5f20, 0x5f20, 0x5f20, 0x5f20, 0x5f20, 0x5f20, "\000" 
+    IDC_DATA_LINESTYLE, 0x403, 51, 0
+0x6f44, 0x7474, 0x6465, 0x2e20, 0x2e20, 0x2e20, 0x2e20, 0x2e20, 0x2e20, 
+0x2e20, 0x2e20, 0x2e20, 0x2e20, 0x2e20, 0x2e20, 0x2e20, 0x2e20, 0x2e20, 
+0x2e20, 0x2e20, 0x2e20, 0x2e20, 0x2e20, 0x2e20, 0x2e20, "\000" 
+    IDC_DATA_LINESTYLE, 0x403, 41, 0
+0x6144, 0x6873, 0x442d, 0x746f, 0x5f20, 0x2e20, 0x5f20, 0x2e20, 0x5f20, 
+0x2e20, 0x5f20, 0x2e20, 0x5f20, 0x2e20, 0x5f20, 0x2e20, 0x5f20, 0x2e20, 
+0x5f20, 0x2e20, "\000" 
+    IDC_DATA_LINESTYLE, 0x403, 41, 0
+0x6144, 0x6873, 0x442d, 0x746f, 0x442d, 0x746f, 0x5f20, 0x2e20, 0x2e20, 
+0x5f20, 0x2e20, 0x2e20, 0x5f20, 0x2e20, 0x2e20, 0x5f20, 0x2e20, 0x2e20, 
+0x5f20, 0x2e20, "\000" 
+    0
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_COLOR_TABLES        "Greyscale\nRainbow\n\nRed Temperature\n16 Level\nBeach\nBlue Pastel Red\nBlue Red\nBlue Waves\nEOS A\nEOS B\nGreen Pink\nGreen Red Blue White\nHard Candy\nHaze\nHSV 1\nHSV 2\nMac Style\nNature\nOcean\nPastel\nPeppermint\nPlasma\nPrism\nPurple Red Stripes\nRainbow 18\nRainbow Black\nRainbow White\nRed Purple\nSTD Gamma II\nSteps\nStern Special\nVolcano\nWaves"
+    IDS_COLOR_TABLE_ID      "IDR_CT_BWLINEAR\nIDR_CT_RAINBOW\nIDR_CT_REDTEMPERATURE\nIDR_CT_16LEVEL\nIDR_CT_BEACH\nIDR_CT_BLUEPASTELRED\nIDR_CT_BLUERED\nIDR_CT_BLUEWAVES\nIDR_CT_EOSA\nIDR_CT_EOSB\nIDR_CT_GREENPINK\nIDR_CT_GREENREDBLUEWHITE\nIDR_CT_HARDCANDY\nIDR_CT_HAZE\nIDR_CT_HSV1\nIDR_CT_HSV2\nIDR_CT_MACSTYLE\nIDR_CT_NATURE\nIDR_CT_OCEAN\nIDR_CT_PASTELS\nIDR_CT_PEPPERMINT\nIDR_CT_PLASMA\nIDR_CT_PRISM\nIDR_CT_PURPLEREDSTRIPES\nIDR_CT_RAINBOW18\nIDR_CT_RAINBOWBLACK\nIDR_CT_RAINBOWWHITE\nIDR_CT_REDPURPLE\nIDR_CT_STDGAMMAII\nIDR_CT_STEPS\nIDR_CT_STERNSPECIAL\nIDR_CT_VOLCANO\nIDR_CT_WAVES"
+END
+
+#endif    // English (New Zealand) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

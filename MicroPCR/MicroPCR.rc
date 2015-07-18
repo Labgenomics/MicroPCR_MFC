@@ -1,0 +1,231 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#ifndef APSTUDIO_INVOKED
+#include "targetver.h"
+#endif
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// 한국어 resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_KOR)
+#ifdef _WIN32
+LANGUAGE LANG_KOREAN, SUBLANG_DEFAULT
+#pragma code_page(949)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#ifndef APSTUDIO_INVOKED\r\n"
+    "#include ""targetver.h""\r\n"
+    "#endif\r\n"
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
+    "#define _AFX_NO_OLE_RESOURCES\r\n"
+    "#define _AFX_NO_TRACKER_RESOURCES\r\n"
+    "#define _AFX_NO_PROPERTY_RESOURCES\r\n"
+    "\r\n"
+    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_KOR)\r\n"
+    "LANGUAGE 18, 1\r\n"
+    "#pragma code_page(949)\r\n"
+    "#include ""res\\MicroPCR.rc2""  // Microsoft Visual C++ 이외의 다른 도구에서 편집한 리소스입니다.\r\n"
+    "#include ""l.KOR\\afxres.rc""      // 표준 구성 요소입니다.\r\n"
+    "#endif\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDR_MAINFRAME           ICON                    "res\\MicroPCR.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_MICROPCR_DIALOG DIALOGEX 0, 0, 671, 439
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_APPWINDOW
+CAPTION "MicroPCR"
+FONT 9, "MS Shell Dlg", 0, 0, 0x1
+BEGIN
+    GROUPBOX        "Device Status",IDC_STATIC,7,7,92,38
+    LTEXT           "Status",IDC_STATIC,13,24,21,8
+    EDITTEXT        IDC_EDIT_DEVICE_STATUS,39,22,50,13,ES_CENTER | ES_AUTOHSCROLL | ES_READONLY | NOT WS_TABSTOP
+    GROUPBOX        "Device Temperature",IDC_STATIC,7,46,92,147
+    GROUPBOX        "PCR Protocol",IDC_STATIC,101,46,176,147
+    EDITTEXT        IDC_EDIT_CHAMBER_TEMP,31,63,40,14,ES_CENTER | ES_AUTOHSCROLL | ES_READONLY | NOT WS_TABSTOP
+    CONTROL         "",IDC_PROGRESS_CHAMBER_TEMP,"msctls_progress32",PBS_SMOOTH | PBS_VERTICAL | WS_BORDER,44,83,13,97,WS_EX_DLGMODALFRAME
+    LTEXT           "100",IDC_STATIC,27,84,13,8
+    LTEXT           "0",IDC_STATIC,33,172,8,8
+    PUSHBUTTON      "PID 열기",IDC_BUTTON_CONSTANTS,283,138,44,26,NOT WS_TABSTOP
+    PUSHBUTTON      "그래프 열기",IDC_BUTTON_GRAPHVIEW,283,166,44,26,NOT WS_TABSTOP
+    CONTROL         "",IDC_LIST_PCR_PROTOCOL,"SysListView32",LVS_REPORT | WS_BORDER | WS_TABSTOP,107,70,160,102,WS_EX_CLIENTEDGE
+    PUSHBUTTON      "PCR Start",IDC_BUTTON_PCR_START,106,174,50,14,NOT WS_TABSTOP
+    PUSHBUTTON      "PCR Open",IDC_BUTTON_PCR_OPEN,162,174,50,14,NOT WS_TABSTOP
+    PUSHBUTTON      "",IDC_BUTTON_PCR_RECORD,218,174,50,14,BS_BITMAP | NOT WS_TABSTOP
+    GROUPBOX        "PCR Constants",IDC_STATIC,330,7,331,186
+    LTEXT           "Maximum actions :",IDC_STATIC,340,21,58,8
+    LTEXT           "Temperature coverage time out :",IDC_STATIC,340,36,107,8
+    LTEXT           "Target temperature arrival delta :",IDC_STATIC,340,50,106,8
+    EDITTEXT        IDC_EDIT_MAX_ACTIONS,403,18,40,14,ES_CENTER | ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_TIME_OUT,450,32,40,14,ES_CENTER | ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_ARRIVAL_DELTA,450,48,40,14,ES_CENTER | ES_AUTOHSCROLL
+    CONTROL         "Custom1",IDC_CUSTOM_PID_TABLE,"MFCGridCtrl",WS_TABSTOP,338,68,318,95
+    PUSHBUTTON      "Constants Apply",IDC_BUTTON_CONSTANTS_APPLY,465,169,62,14
+    GROUPBOX        "Device Information",IDC_STATIC,103,7,222,40
+    LTEXT           "Left Protocol Time :",IDC_STATIC,108,18,64,8
+    EDITTEXT        IDC_EDIT_LEFT_PROTOCOL_TIME,176,15,54,14,ES_CENTER | ES_AUTOHSCROLL | ES_READONLY
+    LTEXT           "Elapsed Time :",IDC_STATIC,125,32,47,8
+    EDITTEXT        IDC_EDIT_ELAPSED_TIME,176,30,54,14,ES_CENTER | ES_AUTOHSCROLL | ES_READONLY
+    LTEXT           "Static",IDC_STATIC_PID_DEBUG,235,26,87,8
+    LTEXT           "Graph Y axis min :",IDC_STATIC,498,21,57,8
+    LTEXT           "Graph Y axis max :",IDC_STATIC,498,36,59,8
+    EDITTEXT        IDC_EDIT_GRAPH_Y_MIN,559,18,40,14,ES_CENTER | ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_Y_MAX,559,33,40,14,ES_CENTER | ES_AUTOHSCROLL
+    PUSHBUTTON      "BootLoader",IDC_BUTTON_BOOTLOADER,283,104,44,31
+END
+
+IDD_PROGRESS_DIALOG DIALOGEX 0, 0, 194, 84
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_SYSMENU
+EXSTYLE WS_EX_TOPMOST
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    LTEXT           "PCR Protocol Transmitting...",IDC_STATIC_PROGRESS,26,26,145,8
+    CONTROL         "",IDC_PROGRESS_PROTOCOL,"msctls_progress32",WS_BORDER,20,44,153,14
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,0,0,1
+ PRODUCTVERSION 1,0,0,1
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x4L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "041203b5"
+        BEGIN
+            VALUE "CompanyName", "TODO: <회사 이름>"
+            VALUE "FileDescription", "TODO: <파일 설명>"
+            VALUE "FileVersion", "1.0.0.1"
+            VALUE "InternalName", "MicroPCR.exe"
+            VALUE "LegalCopyright", "TODO: (c) <회사 이름>.  All rights reserved."
+            VALUE "OriginalFilename", "MicroPCR.exe"
+            VALUE "ProductName", "TODO: <제품 이름>"
+            VALUE "ProductVersion", "1.0.0.1"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x412, 949
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO 
+BEGIN
+    IDD_MICROPCR_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 664
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 432
+    END
+
+    IDD_PROGRESS_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 187
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 77
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDB_BITMAP_SCALE        BITMAP                  "res\\bitmap1.bmp"
+IDB_BITMAP_REC_NOT_WORKING BITMAP                  "res\\rec_not_work.bmp"
+IDB_BITMAP_REC_WORKING  BITMAP                  "res\\rec_work.bmp"
+#endif    // 한국어 resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#define _AFX_NO_SPLITTER_RESOURCES
+#define _AFX_NO_OLE_RESOURCES
+#define _AFX_NO_TRACKER_RESOURCES
+#define _AFX_NO_PROPERTY_RESOURCES
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_KOR)
+LANGUAGE 18, 1
+#pragma code_page(949)
+#include "res\MicroPCR.rc2"  // Microsoft Visual C++ 이외의 다른 도구에서 편집한 리소스입니다.
+#include "l.KOR\afxres.rc"      // 표준 구성 요소입니다.
+#endif
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+
