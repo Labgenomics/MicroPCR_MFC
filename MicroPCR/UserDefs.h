@@ -4,11 +4,7 @@
 #include <windows.h>
 
 // Debug mode 를 동작시킬 경우, UI 에 Edit Box 에 특정 값들을 보여주도록 한다.
-// #define DEBUG_MODE
-
-// 기존의 mmtimer 로 구현했던 기능을 버리지 않고 사용할 수 있게 놔두었다.
-// 하지만, 몇몇 기능이 지워졌으므로 사용하기 위해서는 추가를 해야함.
-// #define USE_MMTIMER
+#define DEBUG_MODE
 
 // Device VID, PID
 #define LS4550EK_VID			0x04D8
@@ -23,11 +19,7 @@
 #define TIMER_MAIN				0x01
 
 // Timer Duration
-#ifdef USE_MMTIMER
-#define TIMER_DURATION			10
-#else
 #define TIMER_DURATION			100
-#endif
 
 #define CONSTANTS_PATH			L"PCRConstants"
 
@@ -35,6 +27,8 @@
 #define RECENT_PATH				L"Recent_Protocol.txt"
 
 #define PID_CONSTANTS_MAX		5
+
+static const CString PID_TABLE_COLUMNS[5] = { L"Start Temp", L"Target Temp", L"Kp", L"Kd", L"Ki" };
 
 // MAX Protocol Name
 #define MAX_PROTOCOL_LENGTH		50
@@ -93,11 +87,10 @@ typedef struct _ACTION
 typedef enum _CMD
 {
 	CMD_READY = 0x00,
-	CMD_PID_WRITE,
-	CMD_PID_END,
 	CMD_PCR_RUN,
 	CMD_PCR_STOP,
-	CMD_REQUEST_LINE,
+	CMD_FAN_ON,
+	CMD_FAN_OFF,
 	CMD_BOOTLOADER = 0x55
 } CMD;
 
@@ -105,8 +98,7 @@ typedef enum _STATE
 {
 	STATE_READY = 0x00,
 	STATE_RUNNING,
-	STATE_PROTOCOL_READING,
-	STATE_PID_READING
+	STATE_PAN_RUNNING,
 } STATE;
 
 typedef struct _RxBuffer
@@ -160,7 +152,12 @@ typedef struct _TxBuffer
 	BYTE pid_d3;
 	BYTE pid_d4;
 
-	BYTE reserved_for_64byte[48];
+	BYTE integralMax_1;
+	BYTE integralMax_2;
+	BYTE integralMax_3;
+	BYTE integralMax_4;
+
+	BYTE reserved_for_64byte[44];
 } TxBuffer;
 
 typedef enum _ERROR

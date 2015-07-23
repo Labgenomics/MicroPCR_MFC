@@ -9,10 +9,6 @@
 #include "Chart.h"
 #include "UserDefs.h"
 
-#ifdef USE_MMTIMER
-#include "mmTimers.h"
-#endif
-
 // CMicroPCRDlg 대화 상자
 class CMicroPCRDlg : public CDialog
 {
@@ -46,6 +42,9 @@ private:
 
 private:
 	vector< PID > pids;
+	float m_kp, m_ki, m_kd;
+
+	void findPID();
 
 	int m_cMaxActions;
 	int m_cTimeOut;
@@ -92,14 +91,17 @@ private:
 	int m_leftGotoCount;
 	int ledControl;
 
-	double temp_buffer[5], temp_buffer2[5];
-
 	CStdioFile m_recFile, m_recPDFile;
 	int m_recordingCount, m_cycleCount;
 
 	// 버튼에 따라 현재 보낼 command 값을 설정한다.
 	BYTE currentCmd;
+	bool isFanOn;
 
+	// Photodiode 값을 저장
+	BYTE photodiode_h, photodiode_l;
+
+	float m_cIntegralMax;
 
 // 생성입니다.
 public:
@@ -138,5 +140,6 @@ public:
 	afx_msg void OnBnClickedButtonPcrOpen();
 	afx_msg void OnBnClickedButtonPcrRecord();
 	afx_msg void OnBnClickedButtonGraphview();
-	afx_msg void OnBnClickedButtonBootloader();
+	afx_msg void OnBnClickedButtonFanControl();
+	afx_msg void OnBnClickedButtonEnterPidManager();
 };

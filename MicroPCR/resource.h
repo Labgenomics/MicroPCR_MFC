@@ -8,6 +8,8 @@
 #define IDB_BITMAP_REC_NOT_WORKING      132
 #define IDB_BITMAP_REC_WORKING          133
 #define IDD_PROGRESS_DIALOG             134
+#define IDD_DIALOG_PID_MANAGER          135
+#define IDD_DIALOG_PID_CREATE           136
 #define IDC_EDIT_DEVICE_STATUS          1000
 #define IDC_EDIT_CHAMBER_TEMP           1001
 #define IDC_PROGRESS_CHAMBER_TEMP       1002
@@ -29,16 +31,39 @@
 #define IDC_EDIT_Y_MAX                  1018
 #define IDC_BUTTON1                     1019
 #define IDC_BUTTON_BOOTLOADER           1019
+#define IDC_BUTTON_FAN_CONTROL          1019
+#define IDC_BUTTON_PID_NEW              1019
+#define IDC_BUTTON_PID_CREATE_ADD       1019
 #define IDC_PROGRESS_PROTOCOL           1020
+#define IDC_EDIT_INTEGRAL_MAX           1020
+#define IDC_BUTTON_SELECT               1020
+#define IDC_BUTTON_PID_CREATE_COMPLETE  1020
 #define IDC_STATIC_PROGRESS             1021
+#define IDC_BUTTON_ENTER_PID_MANAGER    1021
+#define IDC_BUTTON_DELETE               1021
+#define IDC_BUTTON_PID_CREATE_REMOVAL   1021
+#define IDC_EDIT_CURRENT_P              1023
+#define IDC_EDIT_CURRENT_I              1024
+#define IDC_EDIT_CURRENT_D              1025
+#define IDC_CUSTOM_PID_TABLE2           1027
+#define IDC_LIST_PID                    1028
+#define IDC_EDIT_PID_START_TEMP         1029
+#define IDC_EDIT_PID_TARGET_TEMP2       1030
+#define IDC_EDIT_PID_TARGET_TEMP3       1031
+#define IDC_EDIT_PID_TARGET_TEMP4       1032
+#define IDC_EDIT_PID_TARGET_TEMP5       1033
+#define IDC_COMBO_PID_REMOVAL           1034
+#define IDC_CUSTOM_PID_TABLE3           1035
+#define IDC_EDIT1                       1036
+#define IDC_EDIT_LOADED_PID             1036
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        135
+#define _APS_NEXT_RESOURCE_VALUE        137
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1022
+#define _APS_NEXT_CONTROL_VALUE         1037
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

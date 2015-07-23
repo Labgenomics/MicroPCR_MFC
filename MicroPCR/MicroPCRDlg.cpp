@@ -17,8 +17,6 @@
 
 // CMicroPCRDlg 대화 상자
 
-static const CString PID_TABLE_COLUMNS[5] = { L"Start Temp", L"Target Temp", L"Kp", L"Kd", L"Ki" };
-
 
 CMicroPCRDlg::CMicroPCRDlg(CWnd* pParent /*=NULL*/)
 	: CDialog(CMicroPCRDlg::IDD, pParent)
@@ -33,9 +31,6 @@ CMicroPCRDlg::CMicroPCRDlg(CWnd* pParent /*=NULL*/)
 	, m_totalActionNumber(0)
 	, m_currentActionNumber(-1)
 	, actions(NULL)
-	#ifdef USE_MMTIMER
-	, m_Timer(NULL)
-	#endif
 	, m_nLeftSec(0)
 	, m_blinkCounter(0)
 	, m_timerCounter(0)
@@ -58,6 +53,11 @@ CMicroPCRDlg::CMicroPCRDlg(CWnd* pParent /*=NULL*/)
 	, m_cGraphYMax(4096)
 	, ledControl(1)
 	, currentCmd(CMD_READY)
+	, m_kp(0.0)
+	, m_ki(0.0)
+	, m_kd(0.0)
+	, isFanOn(false)
+	, m_cIntegralMax(INTGRALMAX)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -69,10 +69,6 @@ CMicroPCRDlg::~CMicroPCRDlg()
 		delete device;
 	if( actions != NULL )
 		delete []actions;
-#ifdef USE_MMTIMER
-	if( m_Timer != NULL )
-		delete m_Timer;
-#endif
 }
 
 void CMicroPCRDlg::DoDataExchange(CDataExchange* pDX)
@@ -92,6 +88,8 @@ void CMicroPCRDlg::DoDataExchange(CDataExchange* pDX)
 	DDV_MinMaxInt(pDX, m_cGraphYMin, 0, 4096);
 	DDX_Text(pDX, IDC_EDIT_Y_MAX, m_cGraphYMax);
 	DDV_MinMaxInt(pDX, m_cGraphYMax, 0, 4096);
+	DDX_Text(pDX, IDC_EDIT_INTEGRAL_MAX, m_cIntegralMax);
+	DDV_MinMaxFloat(pDX, m_cIntegralMax, 0.0, 10000.0);
 }
 
 BEGIN_MESSAGE_MAP(CMicroPCRDlg, CDialog)
@@ -99,11 +97,7 @@ BEGIN_MESSAGE_MAP(CMicroPCRDlg, CDialog)
 	ON_WM_QUERYDRAGICON()
 	ON_WM_DEVICECHANGE()
 	ON_MESSAGE(WM_SET_SERIAL, SetSerial)
-#ifdef USE_MMTIMER
-	ON_MESSAGE(WM_MMTIMER, OnmmTimer)
-#else
 	ON_WM_TIMER()
-#endif
 	//}}AFX_MSG_MAP
 	ON_BN_CLICKED(IDC_BUTTON_CONSTANTS, &CMicroPCRDlg::OnBnClickedButtonConstants)
 	ON_BN_CLICKED(IDC_BUTTON_CONSTANTS_APPLY, &CMicroPCRDlg::OnBnClickedButtonConstantsApply)
@@ -111,7 +105,8 @@ BEGIN_MESSAGE_MAP(CMicroPCRDlg, CDialog)
 	ON_BN_CLICKED(IDC_BUTTON_PCR_OPEN, &CMicroPCRDlg::OnBnClickedButtonPcrOpen)
 	ON_BN_CLICKED(IDC_BUTTON_PCR_RECORD, &CMicroPCRDlg::OnBnClickedButtonPcrRecord)
 	ON_BN_CLICKED(IDC_BUTTON_GRAPHVIEW, &CMicroPCRDlg::OnBnClickedButtonGraphview)
-	ON_BN_CLICKED(IDC_BUTTON_BOOTLOADER, &CMicroPCRDlg::OnBnClickedButtonBootloader)
+	ON_BN_CLICKED(IDC_BUTTON_FAN_CONTROL, &CMicroPCRDlg::OnBnClickedButtonFanControl)
+	ON_BN_CLICKED(IDC_BUTTON_ENTER_PID_MANAGER, &CMicroPCRDlg::OnBnClickedButtonEnterPidManager)
 END_MESSAGE_MAP()
 
 
@@ -172,9 +167,6 @@ BOOL CMicroPCRDlg::OnInitDialog()
 	sensorValues.push_back( 1.0 );
 
 	device = new CDeviceConnect( GetSafeHwnd() );
-#ifdef USE_MMTIMER
-	m_Timer = new CMMTimers(1, GetSafeHwnd());
-#endif
 
 	// 연결 시도
 	BOOL status = device->CheckDevice();
@@ -193,11 +185,7 @@ BOOL CMicroPCRDlg::OnInitDialog()
 			// 그 경로로 파일을 로드하여 리스트를 만든다.
 			loadRecentProtocol();
  
-#ifdef USE_MMTIMER
-			m_Timer->startTimer(TIMER_DURATION, FALSE);
-#else
 			SetTimer(1, TIMER_DURATION, NULL);
-#endif
 		}
 		else
 		{
@@ -284,22 +272,31 @@ BOOL CMicroPCRDlg::OnDeviceChange(UINT nEventType, DWORD dwData)
 		SetDlgItemText(IDC_EDIT_DEVICE_STATUS, L"Connected");
 		isConnected = true;
 
-#ifdef USE_MMTIMER
-		m_Timer->startTimer(TIMER_DURATION, FALSE);
-#else
-		SetTimer(1, TIMER_DURATION, NULL);
-#endif
+		CFile file;
+		BOOL status = file.Open(RECENT_PATH, CFile::modeRead);
+		// 최근 프로토콜 경로가 저장된 파일이 있다면
+		if( status )
+		{
+			file.Close();
+			// 그 경로로 파일을 로드하여 리스트를 만든다.
+			loadRecentProtocol();
+ 
+			SetTimer(1, TIMER_DURATION, NULL);
+		}
+		else
+		{
+			// 파일이 없다면 새로 만들어두고 에러메시지를 호출한다.
+			file.Open(RECENT_PATH, CFile::modeCreate);
+			file.Close();
+			AfxMessageBox(L"No Recent Protocol File! Please Read Protocol!");
+		}
 	}
 	else
 	{
 		SetDlgItemText(IDC_EDIT_DEVICE_STATUS, L"Disconnected");
 		isConnected = false;
 
-#ifdef USE_MMTIMER
-		m_Timer->stopTimer();
-#else
 		KillTimer(1);
-#endif
 	}
 
 	enableWindows();
@@ -326,7 +323,7 @@ void CMicroPCRDlg::Serialize(CArchive& ar)
 	// Constants 값을 저장할 때 사용함.
 	if (ar.IsStoring())
 	{
-		ar << m_cMaxActions << m_cTimeOut << m_cArrivalDelta << m_cGraphYMin << m_cGraphYMax;
+		ar << m_cMaxActions << m_cTimeOut << m_cArrivalDelta << m_cGraphYMin << m_cGraphYMax << m_cIntegralMax;
 
 		for(int i=0; i<pids.size(); ++i){
 			ar << pids[i].startTemp;
@@ -340,7 +337,7 @@ void CMicroPCRDlg::Serialize(CArchive& ar)
 	{
 		pids.clear();
 
-		ar >> m_cMaxActions >> m_cTimeOut >> m_cArrivalDelta >> m_cGraphYMin >> m_cGraphYMax;
+		ar >> m_cMaxActions >> m_cTimeOut >> m_cArrivalDelta >> m_cGraphYMin >> m_cGraphYMax >> m_cIntegralMax;
 
 		for(int i=0; i<PID_CONSTANTS_MAX; ++i){
 			float startTemp, targetTemp, kp, kd, ki;
@@ -377,22 +374,22 @@ void CMicroPCRDlg::initPidTable()
 	// 초기 excel 의 table 값들을 설정해준다.
 	DWORD dwTextStyle = DT_RIGHT|DT_VCENTER|DT_SINGLELINE;
     for (int row = 0; row < m_cPidTable.GetRowCount(); row++) {
-            for (int col = 0; col < m_cPidTable.GetColumnCount(); col++) { 
-                    GV_ITEM Item;
-                    Item.mask = GVIF_TEXT|GVIF_FORMAT;
-                    Item.row = row;
-                    Item.col = col;
+        for (int col = 0; col < m_cPidTable.GetColumnCount(); col++) { 
+            GV_ITEM Item;
+            Item.mask = GVIF_TEXT|GVIF_FORMAT;
+            Item.row = row;
+            Item.col = col;
 
-                    if (row < 1 && col > 0) {
-                            Item.nFormat = DT_LEFT|DT_WORDBREAK;
-                            Item.strText = PID_TABLE_COLUMNS[col-1];
-                    } else if (col < 1 && row > 0) {
-                            Item.nFormat = dwTextStyle;
-                            Item.strText.Format(_T("PID Setting %d"),row);
-                    }
-
-                    m_cPidTable.SetItem(&Item);  
+            if (row < 1 && col > 0) {
+                    Item.nFormat = DT_LEFT|DT_WORDBREAK;
+                    Item.strText = PID_TABLE_COLUMNS[col-1];
+            } else if (col < 1 && row > 0) {
+                    Item.nFormat = dwTextStyle;
+                    Item.strText.Format(_T("PID Setting %d"),row);
             }
+
+            m_cPidTable.SetItem(&Item);  
+        }
     }
 }
 
@@ -793,6 +790,10 @@ void CMicroPCRDlg::OnBnClickedButtonConstantsApply()
 
 	CAxis *axis = m_Chart.GetAxisByLocation( kLocationLeft );
 	axis->SetRange(m_cGraphYMin, m_cGraphYMax);
+
+	// 동작 중일 경우, 새로 변경된 값으로 pid 를 설정한다.
+	if( isStarted )
+		findPID();
 }
 
 void CMicroPCRDlg::OnBnClickedButtonPcrStart()
@@ -809,103 +810,26 @@ void CMicroPCRDlg::OnBnClickedButtonPcrStart()
 
 		KillTimer(1);
 
+		GetDlgItem(IDC_BUTTON_FAN_CONTROL)->EnableWindow(FALSE);
 		GetDlgItem(IDC_BUTTON_PCR_OPEN)->EnableWindow(FALSE);
-		GetDlgItem(IDC_BUTTON_PCR_START)->EnableWindow(FALSE);
 		SetDlgItemText(IDC_BUTTON_PCR_START, L"PCR Stop");
 
-		// Protocol Progress bar by modal dialog
-		CDialog *progressDlg = new CModalDialog;
-		progressDlg->Create(IDD_PROGRESS_DIALOG, this);
-
-		CRect rect, parent_rect;
-		progressDlg->GetWindowRect(&rect);
-		GetWindowRect(&parent_rect);
-
-		progressDlg->SetWindowPos(this, parent_rect.left + (parent_rect.Width() - rect.Width()) / 2,
-			parent_rect.top + (parent_rect.Height() - rect.Height()) / 2, parent_rect.Width(), parent_rect.Height(), SWP_SHOWWINDOW | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
-
-		CProgressCtrl *progress = (CProgressCtrl*)progressDlg->GetDlgItem(IDC_PROGRESS_PROTOCOL);
-		progress->SetRange(0, pids.size() + 4);
-		progress->SetDlgItemTextW(IDC_STATIC_PROGRESS, L"PCR Protocol Transmitting...");
-
-		RxBuffer rx;
-		TxBuffer tx;
-
-		for(int i=0; i<pids.size(); ++i)
-		{
-			PID pid = pids[i];
-			progress->SetPos(i+1);
-
-			memset(&rx, 0, sizeof(RxBuffer));
-			memset(&tx, 0, sizeof(TxBuffer));
-
-			tx.cmd = CMD_PID_WRITE;
-			tx.startTemp = (BYTE)pid.startTemp;
-			tx.targetTemp = (BYTE)pid.targetTemp;
-			
-			// float 형을 byte 형으로 변환하여 buffer 에 넣음
-			BYTE *tempBuf = (BYTE*)&(pid.kp);
-			memcpy(&(tx.pid_p1), tempBuf, sizeof(float));
-			tempBuf = (BYTE*)&(pid.ki);
-			memcpy(&(tx.pid_i1), tempBuf, sizeof(float));
-			tempBuf = (BYTE*)&(pid.kd);
-			memcpy(&(tx.pid_d1), tempBuf, sizeof(float));
-
-			device->Write(&tx);
-
-			Sleep(20);
-
-			device->Read(&rx);
-
-			Sleep(120);
-		}
-
-		memset(&rx, 0, sizeof(RxBuffer));
-		memset(&tx, 0, sizeof(TxBuffer));
-
-		tx.cmd = CMD_PID_END;
-
-		device->Write(&tx);
-
-		Sleep(40);
-
-		device->Read(&rx);
-
-		progress->SetPos(pids.size());
-
-		progressDlg->DestroyWindow();
-
-		if( progressDlg != NULL )
-			delete progressDlg;
-
 		currentCmd = CMD_PCR_RUN;
-
-		GetDlgItem(IDC_BUTTON_PCR_START)->EnableWindow(TRUE);
-		SetTimer(1, TIMER_DURATION, NULL);
 
 		if( !isRecording )
 			OnBnClickedButtonPcrRecord();
 
 		m_startTime = clock();
 
-		m_nLeftSec = 0;
-		m_nLeftTotalSec = m_nLeftTotalSecBackup;
-		m_currentActionNumber = -1;
-		m_leftGotoCount = -1;
-
-		isCompletePCR = false;
-
-		m_prevTargetTemp = m_currentTargetTemp = 25;
-
 		isFirstDraw = false;
 		clearSensorValue();
+
+		SetTimer(1, TIMER_DURATION, NULL);
 	}
 	else
 	{
 		GetDlgItem(IDC_BUTTON_PCR_OPEN)->EnableWindow(TRUE);
-		isStarted = false;
-
-		currentCmd = CMD_PCR_STOP;
+		GetDlgItem(IDC_BUTTON_FAN_CONTROL)->EnableWindow(TRUE);
 
 		PCREndTask();
 	}
@@ -944,7 +868,7 @@ void CMicroPCRDlg::OnBnClickedButtonPcrRecord()
 		fileName2 = time.Format(L"./Record/pd%Y%m%d-%H%M-%S.txt");
 		
 		m_recFile.Open(fileName, CStdioFile::modeCreate|CStdioFile::modeWrite);
-		m_recFile.WriteString(L"Number	Time	Temperature	Voltage\n");
+		m_recFile.WriteString(L"Number	Time	Temperature\n");
 
 		m_recPDFile.Open(fileName2, CStdioFile::modeCreate|CStdioFile::modeWrite);
 		m_recPDFile.WriteString(L"Cycle	Time	Value\n");
@@ -960,6 +884,36 @@ void CMicroPCRDlg::OnBnClickedButtonPcrRecord()
 
 	isRecording = !isRecording;
 }
+
+void CMicroPCRDlg::OnBnClickedButtonFanControl()
+{
+	isFanOn = !isFanOn;
+
+	if( isFanOn )
+	{
+		currentCmd = CMD_FAN_ON;
+		SetDlgItemText(IDC_BUTTON_FAN_CONTROL, L"FAN OFF");
+		GetDlgItem(IDC_BUTTON_PCR_START)->EnableWindow(FALSE);
+	}
+	else
+	{
+		currentCmd = CMD_FAN_OFF;
+		SetDlgItemText(IDC_BUTTON_FAN_CONTROL, L"FAN ON");
+		GetDlgItem(IDC_BUTTON_PCR_START)->EnableWindow(TRUE);
+	}
+}
+
+#include "PIDManagerDlg.h"
+// PID 를 관리할 수 있는 Manager Dialog 를 생성한다.
+void CMicroPCRDlg::OnBnClickedButtonEnterPidManager()
+{
+	static CPIDManagerDlg dlg;
+
+	if( dlg.DoModal() == IDOK )
+	{
+	}
+}
+
 
 void CMicroPCRDlg::blinkTask()
 {
@@ -996,7 +950,6 @@ void CMicroPCRDlg::blinkTask()
 	}
 }
 
-// YJ 
 CString dslr_title;
 BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lParam)
 {
@@ -1007,6 +960,35 @@ BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lParam)
 		dslr_title = title;
 
 	return TRUE;
+}
+
+void CMicroPCRDlg::findPID()
+{
+	if ( fabs(m_prevTargetTemp - m_currentTargetTemp) < .5 ) 
+		return; // if target temp is not change then do nothing 1->.5 correct
+
+	// enable the constant changing.
+	GetDlgItem(IDC_BUTTON_CONSTANTS_APPLY)->EnableWindow(FALSE);
+	
+	double dist	 = 10000;
+	int paramIdx = 0;
+	
+	for ( int i = 0; i < 5; i++ )
+	{
+		double tmp = fabs(m_prevTargetTemp - pids[i].startTemp) + fabs(m_currentTargetTemp - pids[i].targetTemp);
+
+		if ( tmp < dist )
+		{
+			dist = tmp;
+			paramIdx = i;
+		}
+	}
+
+	m_kp = pids[paramIdx].kp;
+	m_ki = pids[paramIdx].ki;
+	m_kd = pids[paramIdx].kd;
+
+	GetDlgItem(IDC_BUTTON_CONSTANTS_APPLY)->EnableWindow(TRUE);
 }
 
 void CMicroPCRDlg::timeTask()
@@ -1030,6 +1012,7 @@ void CMicroPCRDlg::timeTask()
 			{
 				isCompletePCR = true;
 				PCREndTask();
+				return;
 			}
 
 			if( actions[m_currentActionNumber].Label.Compare(L"GOTO") != 0 )
@@ -1038,7 +1021,6 @@ void CMicroPCRDlg::timeTask()
 				m_currentTargetTemp = (int)actions[m_currentActionNumber].Temp;
 
 				isTargetArrival = false;
-				::OutputDebugString(L"test\n");
 				m_nLeftSec = (int)(actions[m_currentActionNumber].Time);
 				m_timeOut = m_cTimeOut*10;
 
@@ -1052,6 +1034,9 @@ void CMicroPCRDlg::timeTask()
 				else
 					leftTime.Format(L"%dm %ds", min, sec);
 				m_cProtocolList.SetItemText(m_currentActionNumber, 2, leftTime);
+
+				// find the proper pid values.
+				findPID();
 			}
 			else	// is GOTO
 			{
@@ -1097,7 +1082,6 @@ void CMicroPCRDlg::timeTask()
 			{
 				m_nLeftSec--;
 				m_nLeftTotalSec--;
-				::OutputDebugString(L"ok");
 
 				int min = m_nLeftSec/60;
 				int sec = m_nLeftSec%60;
@@ -1154,8 +1138,7 @@ void CMicroPCRDlg::timeTask()
 		if( ((int)(actions[m_currentActionNumber].Temp) == 72) && 
 			m_nLeftSec == 1 )
 		{
-			/*		수정 예정
-			double lights = (double)(rxBuf.lightH & 0x0f)*255. + (double)(rxBuf.lightL);
+			double lights = (double)(photodiode_h & 0x0f)*255. + (double)(photodiode_l);
 			addSensorValue( lights );
 
 			if( isRecording )
@@ -1165,7 +1148,6 @@ void CMicroPCRDlg::timeTask()
 				out.Format(L"%6d	%8.0f	%3.1f\n", m_cycleCount, (double)(timeGetTime()-m_recStartTime), lights);
 				m_recPDFile.WriteString(out);
 			}
-			*/
 		}
 	}
 
@@ -1182,13 +1164,32 @@ void CMicroPCRDlg::PCREndTask()
 	if( isRecording )
 		OnBnClickedButtonPcrRecord();
 
-	m_currentActionNumber = 0;
+	isStarted = false;
+	currentCmd = CMD_PCR_STOP;
+
+	m_currentActionNumber = -1;
 	m_nLeftSec = 0;
 	m_nLeftTotalSec = 0;
 	m_timerCounter = 0;
 	m_startTime = 0;
 	recordFlag = false;
-	isStarted = false;
+
+	m_nLeftTotalSec = m_nLeftTotalSecBackup;
+	m_leftGotoCount = -1;
+	m_recordingCount = 0;
+	m_recStartTime = 0;
+	blinkFlag = false;
+	m_timeOut = 0;
+	m_blinkCounter = 0;
+	ledControl = 1;
+
+	m_kp = 0;
+	m_ki = 0;
+	m_kd = 0;
+
+	isTargetArrival = false;
+
+	m_prevTargetTemp = m_currentTargetTemp = 25;
 
 	SetDlgItemText(IDC_BUTTON_PCR_START, L"PCR Start");
 
@@ -1199,146 +1200,6 @@ void CMicroPCRDlg::PCREndTask()
 
 	isCompletePCR = false;
 }
-
-#ifdef USE_MMTIMER
-LRESULT CMicroPCRDlg::OnmmTimer(WPARAM wParam, LPARAM lParam)
-{
-	blinkTask();
-
-	if( isStarted )
-	{
-		int test = 0;
-		timeTask();
-	}
-
-	BYTE readdata[65] = { 0, };
-	// BYTE senddata[65] = { 0, };
-
-	TxBuffer tx;
-	memset(&tx, 0, sizeof(TxBuffer));
-
-
-	device->Write((void*)&tx);
-
-	if( device->Read(readdata) != 0 )
-	{
-		rxBuf.tempH = readdata[RX_TEMPH];
-		rxBuf.tempL = readdata[RX_TEMPL];
-		rxBuf.state = readdata[RX_STATE];
-		rxBuf.lightH = readdata[RX_LIGHTH];
-		rxBuf.lightL = readdata[RX_LIGHTL];
-	}
-	else
-	{
-		rxBuf.tempH = 0;
-		rxBuf.tempL = 0;
-		rxBuf.state = 0;
-		rxBuf.lightH = 0;
-		rxBuf.lightL = 0;
-		return 0;
-	}
-
-	double adc = ((double)(rxBuf.tempH & 0x0f)*255. + (double)(rxBuf.tempL))/4.0;
-	double temperature = 0;
-
-	if( adc != 0 )
-	{
-		double r = Rref * (1024.0 / adc - 1.0);
-		double InRs = log(r);
-		double tmp = A_VAL + B_VAL *InRs + C_VAL * pow(InRs,3.);
-
-		temperature = 1./tmp-K;
-	}
-
-	// for median filtering
-	temp_buffer[0] = temp_buffer[1];
-	temp_buffer[1] = temp_buffer[2];
-	temp_buffer[2] = temp_buffer[3];
-	temp_buffer[3] = temp_buffer[4];
-	temp_buffer[4] = temperature;
-
-	memcpy(temp_buffer2, temp_buffer, 5*sizeof(double));
-
-	temperature = AfxQuickSort(temp_buffer2, 5);
-
-	CString tempStr;
-	tempStr.Format(L"%3.1f", temperature);
-	SetDlgItemText(IDC_EDIT_CHAMBER_TEMP, tempStr);
-	m_cProgressBar.SetPos((int)temperature);
-
-	double pwmValue = 0;
-
-	if( isStarted )
-	{
-		// 높은 온도에서 낮은 온도로 갈 때 동작
-		if( m_prevTargetTemp > m_currentTargetTemp )
-		{
-			if( temperature-m_currentTargetTemp <= FAN_STOP_TEMPDIF )
-				txBuf.fan = 0;
-			else
-				txBuf.fan = 1;
-		}
-		else
-			txBuf.fan = 0;
-
-		if( fabs(temperature-m_currentTargetTemp) < m_cArrivalDelta )
-			isTargetArrival = true;
-
-		txBuf.state = M_ST_PCR;
-
-		// duration 값 계산하기
-		double currentErr = 0;
-		double proportional = 0;
-		double integral = 0;
-
-		currentErr = m_currentTargetTemp - temperature;
-		proportional = currentErr;
-		integral = currentErr + m_lastIntegral;
-
-		if( integral > INTGRALMAX )
-			integral = INTGRALMAX;
-		else if( integral < 0 )
-			integral = 0;
-
-		double derivative = currentErr - m_lastError;
-
-		pwmValue = m_kp*proportional + m_ki*integral + m_kd * derivative;
-
-		if( pwmValue > 255 )
-			pwmValue = 255;
-		else if( pwmValue < 0 )
-			pwmValue = 0;
-
-		pwmValue = fabs(pwmValue);
-
-		m_lastError = currentErr;
-		m_lastIntegral = integral;
-	}
-	else
-	{
-		memset(&txBuf, 0, sizeof(TxBuf));
-		txBuf.ledControl = 1;
-		txBuf.state = M_ST_READY;
-	}
-
-	setDuration(pwmValue);
-
-	CString out;
-	out.Format(L"%.1f\t%.1f\t%.1f\t%.1f", m_kp, m_kd, m_ki, pwmValue);
-	SetDlgItemText(IDC_STATIC_PID_DEBUG, out); 
-
-	if( isRecording )
-	{
-		m_recordingCount++;
-		CString out;
-		out.Format(L"%6d	%8.0f	%3.1f	%6.3lf\n", m_recordingCount, (double)(timeGetTime()-m_recStartTime), temperature, pwmValue);
-		m_recFile.WriteString(out);
-	}
-
-	return FALSE;
-}
-
-#else	// for using SetTimer
 
 void CMicroPCRDlg::OnTimer(UINT_PTR nIDEvent)
 {
@@ -1360,45 +1221,32 @@ void CMicroPCRDlg::OnTimer(UINT_PTR nIDEvent)
 	tx.cmd = currentCmd;
 	tx.currentTargetTemp = (BYTE)m_currentTargetTemp;
 
+	// pid 값을 buffer 에 복사한다.
+	memcpy(&(tx.pid_p1), &(m_kp), sizeof(float));
+	memcpy(&(tx.pid_i1), &(m_ki), sizeof(float));
+	memcpy(&(tx.pid_d1), &(m_kd), sizeof(float));
+
+	// integral max 값을 buffer 에 복사한다.
+	memcpy(&(tx.integralMax_1), &(m_cIntegralMax), sizeof(float));
+
 	device->Write((void*)&tx);
 
 	if( device->Read(&rx) == 0 )
 		return;
 
-	/*	현재 기존의 chamber adc 값으로 온도를 표시하는 부분 
-	// 제대로 동작하지만, 실제 기기에서 온도를 계산하는 부분을 추가했으므로 
-	// 그 값을 이용할 예정
-	// 현재 기기에서 온도 값을 보내주고 있으나 제대로 동작하지 않음
-	// 기기가 망가져 테스트를 못함.
-	// 월요일에 추가할 예정
-
-	double adc = ((double)(rx.chamber_h & 0x0f)*255. + (double)(rx.chamber_l))/4.0;
-	currentTemp = 0;
-
-	if( adc != 0 )
-	{
-		double r = Rref * (1024.0 / adc - 1.0);
-		double InRs = log(r);
-		double tmp = A_VAL + B_VAL *InRs + C_VAL * pow(InRs,3.);
-
-		currentTemp = 1./tmp-K;
-	}
-
-	// for median filtering
-	temp_buffer[0] = temp_buffer[1];
-	temp_buffer[1] = temp_buffer[2];
-	temp_buffer[2] = temp_buffer[3];
-	temp_buffer[3] = temp_buffer[4];
-	temp_buffer[4] = currentTemp;
-
-	memcpy(temp_buffer2, temp_buffer, 5*sizeof(double));
-
-	currentTemp = AfxQuickSort(temp_buffer2, 5);
-	*/
+	// Change the currentCmd to Ready after sending once except READY, RUN.
+	if( currentCmd == CMD_FAN_OFF )
+		currentCmd = CMD_READY;
+	else if( currentCmd == CMD_PCR_STOP )
+		currentCmd = CMD_READY;
 
 	// 기기로부터 받은 온도 값을 받아와서 저장함.
 	// convert BYTE pointer to float type for reading temperature value.
 	memcpy(&currentTemp, &(rx.chamber_temp_1), sizeof(float));
+
+	// 기기로부터 받은 Photodiode 값을 받아와서 저장함.
+	photodiode_h = rx.photodiode_h;
+	photodiode_l = rx.photodiode_l;
 
 	if( currentTemp < 0.0 )
 		return;
@@ -1410,12 +1258,34 @@ void CMicroPCRDlg::OnTimer(UINT_PTR nIDEvent)
 	tempStr.Format(L"%3.1f", currentTemp);
 	SetDlgItemText(IDC_EDIT_CHAMBER_TEMP, tempStr);
 	m_cProgressBar.SetPos((int)currentTemp);
+
+	// 현재 사용중인 PID 값을 보여준다.
+	CString pidstr;
+	pidstr.Format(L"%.1f", m_kp);
+	SetDlgItemText(IDC_EDIT_CURRENT_P, pidstr);
+	pidstr.Format(L"%.4f", m_ki);
+	SetDlgItemText(IDC_EDIT_CURRENT_I, pidstr);
+	pidstr.Format(L"%.1f", m_kd);
+	SetDlgItemText(IDC_EDIT_CURRENT_D, pidstr);
+
+	// Check the error from device
+	static bool onceShow = true;
+	if( rx.currentError == ERROR_ASSERT && onceShow ){
+		onceShow = false;
+		AfxMessageBox(L"Software error occured!\nPlease contact to developer");
+	}
+
+	// Save the recording data.
+	if( isRecording )
+	{
+		m_recordingCount++;
+		CString out;
+		out.Format(L"%6d	%8.0f	%3.1f\n", m_recordingCount, (double)(timeGetTime()-m_recStartTime), currentTemp);
+		m_recFile.WriteString(out);
+	}
 	
 	CDialog::OnTimer(nIDEvent);
 }
-
-#endif	// End of #ifdef USE_MMTIMER
-
 
 
 void CMicroPCRDlg::addSensorValue(double val)
@@ -1449,27 +1319,4 @@ void CMicroPCRDlg::clearSensorValue()
 
 	m_Chart.DeleteAllData();
 	InvalidateRect(&CRect(15, 350, 1155, 760));
-}
-
-
-void CMicroPCRDlg::OnBnClickedButtonBootloader()
-{
-	KillTimer(1);
-	
-	// 현재 bootloader 기능이 동작하지 않음. 
-	// 기기가 변경되서 인지 제대로 동작하지 않음.
-	// 기기가 disconnected 는 되지만, bootloader 모드로 이동되지 않음.
-
-	RxBuffer rx;
-	TxBuffer tx;
-	memset(&rx, 0, sizeof(RxBuffer));
-	memset(&tx, 0, sizeof(TxBuffer));
-	
-	tx.cmd = CMD_BOOTLOADER;
-
-	device->Write(&tx);
-
-	Sleep(20);
-
-	device->Read(&rx);
 }

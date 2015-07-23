@@ -198,6 +198,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\FileManager.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\MicroPCR.cpp"
 				>
 			</File>
@@ -207,6 +211,14 @@
 			</File>
 			<File
 				RelativePath=".\mmTimers.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\PIDCreateDlg.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\PIDManagerDlg.cpp"
 				>
 			</File>
 			<File
@@ -324,6 +336,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\FileManager.h"
+				>
+			</File>
+			<File
 				RelativePath=".\MicroPCR.h"
 				>
 			</File>
@@ -333,6 +349,14 @@
 			</File>
 			<File
 				RelativePath=".\mmTimers.h"
+				>
+			</File>
+			<File
+				RelativePath=".\PIDCreateDlg.h"
+				>
+			</File>
+			<File
+				RelativePath=".\PIDManagerDlg.h"
 				>
 			</File>
 			<File
