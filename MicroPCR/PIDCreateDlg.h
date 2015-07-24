@@ -8,8 +8,8 @@
 class CPIDCreateDlg : public CDialog
 {
 private:
-	BYTE m_cStartTemp;
-	BYTE m_cTargetTemp;
+	float m_cStartTemp;
+	float m_cTargetTemp;
 	float m_cKp;
 	float m_cKi;
 	float m_cKd;
@@ -17,9 +17,10 @@ private:
 	CGridCtrl m_cPidTable;
 
 	vector< PID > pids;
+	CString saveLabel;
 
 	void initPidTable();
-
+	void loadPidTable();
 
 	DECLARE_DYNAMIC(CPIDCreateDlg)
 
@@ -40,4 +41,5 @@ public:
 	afx_msg void OnBnClickedButtonPidCreateRemoval();
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	virtual BOOL OnInitDialog();
+	virtual void OnGridEndEdit(NMHDR *pNotifyStruct, LRESULT* pResult);
 };

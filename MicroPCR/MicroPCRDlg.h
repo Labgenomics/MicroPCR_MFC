@@ -103,6 +103,8 @@ private:
 
 	float m_cIntegralMax;
 
+	CString loadedPID;
+
 // 생성입니다.
 public:
 	CMicroPCRDlg(CWnd* pParent = NULL);	// 표준 생성자입니다.

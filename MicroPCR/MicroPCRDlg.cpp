@@ -6,6 +6,8 @@
 #include "MicroPCR.h"
 #include "MicroPCRDlg.h"
 #include "ConvertTool.h"
+#include "FileManager.h"
+#include "PIDManagerDlg.h"
 
 #include <locale.h>
 #include <mmsystem.h>
@@ -16,6 +18,7 @@
 
 
 // CMicroPCRDlg 대화 상자
+
 
 
 CMicroPCRDlg::CMicroPCRDlg(CWnd* pParent /*=NULL*/)
@@ -58,6 +61,7 @@ CMicroPCRDlg::CMicroPCRDlg(CWnd* pParent /*=NULL*/)
 	, m_kd(0.0)
 	, isFanOn(false)
 	, m_cIntegralMax(INTGRALMAX)
+	, loadedPID(L"")
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -145,11 +149,42 @@ BOOL CMicroPCRDlg::OnInitDialog()
 	for(int i=0; i<3; ++i)
 		m_cProtocolList.InsertColumn(i, labels[i], LVCFMT_CENTER, (rect.Width()/3));
 
+	actions = new Action[m_cMaxActions];
+
 	OnBnClickedButtonConstants();
 
-#ifndef DEBUG_MODE
-	GetDlgItem(IDC_STATIC_PID_DEBUG)->ShowWindow(SW_HIDE);
-#endif
+	// 150725 PID Check
+	// 이전에 불러온 PID 값이 있는지 확인한다.
+	CString recentPath;
+	vector< CString > pidList;
+	FileManager::loadRecentPath(FileManager::PID_PATH, recentPath);
+	FileManager::enumFiles( L"./PID/", pidList );
+
+	do
+	{
+		if( recentPath.IsEmpty() ){
+			if( pidList.empty() )
+				AfxMessageBox(L"저장된 PID Parameter 가 존재하지 않습니다.\n생성하는 창으로 이동됩니다.");
+			else
+				AfxMessageBox(L"최근 사용한 PID Parameter 가 존재하지 않습니다.\n선택하는 창으로 이동됩니다.");
+	
+			OnBnClickedButtonEnterPidManager();
+			break;
+		}
+		else{
+			// recentPath 를 불러오면서 문제가 생긴 경우, recentPath 값을 
+			// 지움으로써 위의 if 문이 동작하도록 한다.
+			if( !FileManager::loadPID( recentPath, pids ) ){
+				DeleteFile(RECENT_PID_PATH);
+				recentPath.Empty();
+			}
+			else{
+				loadedPID = recentPath;
+				SetDlgItemText(IDC_EDIT_LOADED_PID, loadedPID);
+				break;
+			}
+		}
+	}while(true);
 
 	initPidTable();
 	loadPidTable();
@@ -202,7 +237,6 @@ BOOL CMicroPCRDlg::OnInitDialog()
 	}
 
 	enableWindows();
-
 
 	return TRUE;  // 포커스를 컨트롤에 설정하지 않으면 TRUE를 반환합니다.
 }
@@ -355,6 +389,8 @@ void CMicroPCRDlg::Serialize(CArchive& ar)
 	}
 }
 
+static const int PID_TABLE_COLUMN_WIDTHS[6] = { 88, 120, 120, 75, 75, 75 };
+
 // pid table 을 grid control 을 그리기 위해 설정.
 void CMicroPCRDlg::initPidTable()
 {
@@ -365,97 +401,66 @@ void CMicroPCRDlg::initPidTable()
 
 	m_cPidTable.SetSingleRowSelection();
 	m_cPidTable.SetSingleColSelection();
-	m_cPidTable.SetRowCount(PID_CONSTANTS_MAX+1);
+	m_cPidTable.SetRowCount(1);
 	m_cPidTable.SetColumnCount(PID_CONSTANTS_MAX+1);
     m_cPidTable.SetFixedRowCount(1);
     m_cPidTable.SetFixedColumnCount(1);
 	m_cPidTable.SetEditable(true);
 
-	// 초기 excel 의 table 값들을 설정해준다.
+	// 초기 gridControl 의 table 값들을 설정해준다.
 	DWORD dwTextStyle = DT_RIGHT|DT_VCENTER|DT_SINGLELINE;
-    for (int row = 0; row < m_cPidTable.GetRowCount(); row++) {
-        for (int col = 0; col < m_cPidTable.GetColumnCount(); col++) { 
-            GV_ITEM Item;
-            Item.mask = GVIF_TEXT|GVIF_FORMAT;
-            Item.row = row;
-            Item.col = col;
 
-            if (row < 1 && col > 0) {
-                    Item.nFormat = DT_LEFT|DT_WORDBREAK;
-                    Item.strText = PID_TABLE_COLUMNS[col-1];
-            } else if (col < 1 && row > 0) {
-                    Item.nFormat = dwTextStyle;
-                    Item.strText.Format(_T("PID Setting %d"),row);
-            }
+    for (int col = 0; col < m_cPidTable.GetColumnCount(); col++) { 
+		GV_ITEM Item;
+        Item.mask = GVIF_TEXT|GVIF_FORMAT;
+        Item.row = 0;
+        Item.col = col;
 
-            m_cPidTable.SetItem(&Item);  
+        if (col > 0) {
+                Item.nFormat = DT_LEFT|DT_WORDBREAK;
+                Item.strText = PID_TABLE_COLUMNS[col-1];
         }
+
+        m_cPidTable.SetItem(&Item);
+		m_cPidTable.SetColumnWidth(col, PID_TABLE_COLUMN_WIDTHS[col]);
     }
 }
 
-// 파일로부터 불러온 pid 값을 table 에 그려준다.
+// 파일로부터 pid 값을 불러와서 table 에 그려준다.
 void CMicroPCRDlg::loadPidTable()
 {
-	CFile file;
+	m_cPidTable.SetRowCount(pids.size()+1);
 
-	if( file.Open(CONSTANTS_PATH, CFile::modeRead) ){
-		CArchive ar(&file, CArchive::load);
-		Serialize(ar);
-		ar.Close();
-		file.Close();
-	}
-	else{
-		for(int i=0; i<PID_CONSTANTS_MAX; ++i)
-			pids.push_back( PID() );
-		AfxMessageBox(L"Constants 파일이 없어 값이 초기화되었습니다.\n다시 값을 설정해주세요.");
-		OnBnClickedButtonConstants();
-	}
-
-	// 불러온 pid 값들을 grid control 에 표시해준다.
 	for(int i=0; i<pids.size(); ++i){
 		float *temp[5] = { &(pids[i].startTemp), &(pids[i].targetTemp), 
 			&(pids[i].kp), &(pids[i].kd), &(pids[i].ki)};
-
-		for(int j=0; j<5; ++j){
+		for(int j=0; j<PID_CONSTANTS_MAX+1; ++j){
 			GV_ITEM item;
 			item.mask = GVIF_TEXT|GVIF_FORMAT;
 			item.row = i+1;
-			item.col = j+1;
+			item.col = j;
 			item.nFormat = DT_LEFT|DT_WORDBREAK;
-			if( j == 4 )
-				item.strText.Format(L"%.4f", *temp[j]);
-			else
-				item.strText.Format(L"%.1f", *temp[j]);
 
-			m_cPidTable.SetItem(&item); 
+			// 첫번째 column 은 PID 1 으로 표시
+			if( j == 0 )
+				item.strText.Format(L"PID #%d", i+1);
+			else
+				item.strText.Format(L"%.4f", *temp[j-1]);
+			
+			m_cPidTable.SetItem(&item);
 		}
 	}
-
-	// 기존의 actions 들을 지움
-	// 숫자가 바뀔 수 있기 때문에 지우고 새로 생성하도록 한다.
-	if( actions != NULL )
-		delete []actions;
-
-	// 새로운 actions 들을 생성한다. 
-	actions = new Action[m_cMaxActions];
-	m_totalActionNumber = 0;
 }
 
 void CMicroPCRDlg::savePidTable()
 {
-	CFile file;
-
-	file.Open(CONSTANTS_PATH, CFile::modeCreate|CFile::modeWrite);
-	CArchive ar(&file, CArchive::store);
-	Serialize(ar);
-	ar.Close();
-	file.Close();
+	FileManager::savePID( loadedPID, pids );
 }
 
 void CMicroPCRDlg::enableWindows()
 {
+	GetDlgItem(IDC_BUTTON_PCR_START)->EnableWindow(isConnected&&!loadedPID.IsEmpty());
 	GetDlgItem(IDC_BUTTON_PCR_OPEN)->EnableWindow(isConnected);
-	GetDlgItem(IDC_BUTTON_PCR_START)->EnableWindow(isConnected);
 	GetDlgItem(IDC_BUTTON_PCR_RECORD)->EnableWindow(isConnected);
 }
 
@@ -774,19 +779,22 @@ void CMicroPCRDlg::OnBnClickedButtonConstantsApply()
 	if( !UpdateData() )
 		return;
 
-	pids.clear();
+	if( !pids.empty() ){
+		pids.clear();
+	
+		for (int row = 1; row < m_cPidTable.GetRowCount(); row++) {
+			CString startTemp = m_cPidTable.GetItemText(row, 1);
+			CString targetTemp = m_cPidTable.GetItemText(row, 2);
+			CString kp = m_cPidTable.GetItemText(row, 3);
+			CString kd = m_cPidTable.GetItemText(row, 4);
+			CString ki = m_cPidTable.GetItemText(row, 5);
+	
+			pids.push_back( PID( _wtof(startTemp), _wtof(targetTemp), _wtof(kp), _wtof(kd), _wtof(ki) ) );
+		}
 
-	for (int row = 1; row < m_cPidTable.GetRowCount(); row++) {
-		CString startTemp = m_cPidTable.GetItemText(row, 1);
-		CString targetTemp = m_cPidTable.GetItemText(row, 2);
-		CString kp = m_cPidTable.GetItemText(row, 3);
-		CString kd = m_cPidTable.GetItemText(row, 4);
-		CString ki = m_cPidTable.GetItemText(row, 5);
-
-		pids.push_back( PID( _wtof(startTemp), _wtof(targetTemp), _wtof(kp), _wtof(kd), _wtof(ki) ) );
+		// 변경된 값에 따라 저장해준다.
+		FileManager::savePID( loadedPID, pids );
 	}
-
-	savePidTable();
 
 	CAxis *axis = m_Chart.GetAxisByLocation( kLocationLeft );
 	axis->SetRange(m_cGraphYMin, m_cGraphYMax);
@@ -855,9 +863,6 @@ void CMicroPCRDlg::OnBnClickedButtonPcrOpen()
 
 void CMicroPCRDlg::OnBnClickedButtonPcrRecord()
 {
-	/**
-	// pd 날짜 시간 초.txt 
-	**/
 	if( !isRecording )
 	{
 		CreateDirectory(L"./Record/", NULL);
@@ -903,7 +908,6 @@ void CMicroPCRDlg::OnBnClickedButtonFanControl()
 	}
 }
 
-#include "PIDManagerDlg.h"
 // PID 를 관리할 수 있는 Manager Dialog 를 생성한다.
 void CMicroPCRDlg::OnBnClickedButtonEnterPidManager()
 {
@@ -911,7 +915,28 @@ void CMicroPCRDlg::OnBnClickedButtonEnterPidManager()
 
 	if( dlg.DoModal() == IDOK )
 	{
+		loadedPID = dlg.selectedPID;
+		SetDlgItemText(IDC_EDIT_LOADED_PID, loadedPID);
+		FileManager::saveRecentPath(FileManager::PID_PATH, loadedPID);
+		if( !FileManager::loadPID(loadedPID, pids) ){
+			AfxMessageBox(L"PID 를 생성하는데 문제가 발생하였습니다.\n개발자에게 문의하세요.");
+		}
 	}
+
+	if( loadedPID.IsEmpty() )
+		AfxMessageBox(L"PID 가 선택되지 않으면 PCR 을 시작할 수 없습니다.");
+
+	if( !dlg.isHasPidList() ){
+		loadedPID.Empty();
+		SetDlgItemText(IDC_EDIT_LOADED_PID, loadedPID);
+		pids.clear();
+	}
+
+	// 프로토콜이 비어있으면 Start 버튼 비활성화
+	GetDlgItem(IDC_BUTTON_PCR_START)->EnableWindow(!loadedPID.IsEmpty());
+
+	initPidTable();
+	loadPidTable();
 }
 
 

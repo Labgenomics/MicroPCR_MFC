@@ -9,8 +9,21 @@
 class CPIDManagerDlg : public CDialog
 {
 private:
+	vector< CString > pidList;
+	vector< PID > pids;
 
+	void initPidList();
 	void initPidTable();
+	void loadPidTable();
+
+	int selectedIndex;
+
+	bool hasPidList;
+
+public:
+	CString selectedPID;
+
+	bool isHasPidList();
 
 	DECLARE_DYNAMIC(CPIDManagerDlg)
 
@@ -27,9 +40,12 @@ protected:
 	DECLARE_MESSAGE_MAP()
 public:
 	CListBox m_cPidList;
-	CGridCtrl m_cPidGridList;
+	CGridCtrl m_cPidTable;
 	afx_msg void OnBnClickedButtonPidNew();
 	afx_msg void OnBnClickedButtonSelect();
 	afx_msg void OnBnClickedButtonDelete();
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
+	virtual BOOL OnInitDialog();
+	afx_msg void OnLbnSelchangeListPid();
+	virtual void OnGridEndEdit(NMHDR *pNotifyStruct, LRESULT* pResult);
 };
