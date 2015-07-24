@@ -52,7 +52,8 @@ private:
 
 	void initPidTable();
 	void loadPidTable();
-	void savePidTable();
+	void loadConstants();
+	void saveConstants();
 	void enableWindows();
 
 	CString m_sProtocolName;

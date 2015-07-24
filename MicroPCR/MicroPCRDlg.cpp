@@ -189,6 +189,8 @@ BOOL CMicroPCRDlg::OnInitDialog()
 	initPidTable();
 	loadPidTable();
 
+	loadConstants();
+
 	// Chart Settings
 	CAxis *axis;
 	axis = m_Chart.AddAxis( kLocationBottom );
@@ -358,32 +360,10 @@ void CMicroPCRDlg::Serialize(CArchive& ar)
 	if (ar.IsStoring())
 	{
 		ar << m_cMaxActions << m_cTimeOut << m_cArrivalDelta << m_cGraphYMin << m_cGraphYMax << m_cIntegralMax;
-
-		for(int i=0; i<pids.size(); ++i){
-			ar << pids[i].startTemp;
-			ar << pids[i].targetTemp;
-			ar << pids[i].kp;
-			ar << pids[i].kd;
-			ar << pids[i].ki;
-		}
 	}
 	else	// Constants 값을 파일로부터 불러올 때 사용한다.
 	{
-		pids.clear();
-
 		ar >> m_cMaxActions >> m_cTimeOut >> m_cArrivalDelta >> m_cGraphYMin >> m_cGraphYMax >> m_cIntegralMax;
-
-		for(int i=0; i<PID_CONSTANTS_MAX; ++i){
-			float startTemp, targetTemp, kp, kd, ki;
-			ar >> startTemp;
-			ar >> targetTemp;
-			ar >> kp;
-			ar >> kd;
-			ar >> ki;
-
-			// 불러와서 pids vector 에 저장한다. 
-			pids.push_back( PID( startTemp, targetTemp, kp, kd, ki ) );
-		}
 
 		UpdateData(FALSE);
 	}
@@ -452,9 +432,31 @@ void CMicroPCRDlg::loadPidTable()
 	}
 }
 
-void CMicroPCRDlg::savePidTable()
+void CMicroPCRDlg::loadConstants()
 {
-	FileManager::savePID( loadedPID, pids );
+	CFile file;
+
+	if( file.Open(CONSTANTS_PATH, CFile::modeRead) ){
+		CArchive ar(&file, CArchive::load);
+		Serialize(ar);
+		ar.Close();
+		file.Close();
+	}
+	else{
+		AfxMessageBox(L"Constants 파일이 없어 값이 초기화되었습니다.\n다시 값을 설정해주세요.");
+		OnBnClickedButtonConstants();
+	}
+}
+
+void CMicroPCRDlg::saveConstants()
+{
+	CFile file;
+
+	file.Open(CONSTANTS_PATH, CFile::modeCreate|CFile::modeWrite);
+	CArchive ar(&file, CArchive::store);
+	Serialize(ar);
+	ar.Close();
+	file.Close();
 }
 
 void CMicroPCRDlg::enableWindows()
@@ -795,6 +797,9 @@ void CMicroPCRDlg::OnBnClickedButtonConstantsApply()
 		// 변경된 값에 따라 저장해준다.
 		FileManager::savePID( loadedPID, pids );
 	}
+
+	// PID 값을 제외한 나머지 Constants 들을 저장한다.
+	saveConstants();
 
 	CAxis *axis = m_Chart.GetAxisByLocation( kLocationLeft );
 	axis->SetRange(m_cGraphYMin, m_cGraphYMax);
