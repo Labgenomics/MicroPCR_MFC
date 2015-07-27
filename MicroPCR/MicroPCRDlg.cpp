@@ -1034,7 +1034,7 @@ void CMicroPCRDlg::findPID()
 	double dist	 = 10000;
 	int paramIdx = 0;
 	
-	for ( int i = 0; i < 5; i++ )
+	for ( int i = 0; i < pids.size(); i++ )
 	{
 		double tmp = fabs(m_prevTargetTemp - pids[i].startTemp) + fabs(m_currentTargetTemp - pids[i].targetTemp);
 
