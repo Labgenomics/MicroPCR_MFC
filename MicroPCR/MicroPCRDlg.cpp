@@ -964,12 +964,12 @@ void CMicroPCRDlg::OnBnClickedButtonLedControl()
 
 	if( isLedOn )
 	{
-		ledControl_b = 1;
+		ledControl_b = 0;
 		SetDlgItemText(IDC_BUTTON_LED_CONTROL, L"LED OFF");
 	}
 	else
 	{
-		ledControl_b = 0;
+		ledControl_b = 1;
 		SetDlgItemText(IDC_BUTTON_LED_CONTROL, L"LED ON");
 	}
 }
