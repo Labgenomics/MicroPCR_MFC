@@ -54,7 +54,10 @@ CMicroPCRDlg::CMicroPCRDlg(CWnd* pParent /*=NULL*/)
 	, m_recStartTime(0)
 	, m_cGraphYMin(0)
 	, m_cGraphYMax(4096)
-	, ledControl(1)
+	, ledControl_wg(1)
+	, ledControl_r(1)
+	, ledControl_g(1)
+	, ledControl_b(1)
 	, currentCmd(CMD_READY)
 	, m_kp(0.0)
 	, m_ki(0.0)
@@ -62,6 +65,7 @@ CMicroPCRDlg::CMicroPCRDlg(CWnd* pParent /*=NULL*/)
 	, isFanOn(false)
 	, m_cIntegralMax(INTGRALMAX)
 	, loadedPID(L"")
+	, m_cycleCount2(0)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -444,6 +448,7 @@ void CMicroPCRDlg::loadConstants()
 	}
 	else{
 		AfxMessageBox(L"Constants 파일이 없어 값이 초기화되었습니다.\n다시 값을 설정해주세요.");
+		saveConstants();
 		OnBnClickedButtonConstants();
 	}
 }
@@ -872,24 +877,31 @@ void CMicroPCRDlg::OnBnClickedButtonPcrRecord()
 	{
 		CreateDirectory(L"./Record/", NULL);
 
-		CString fileName, fileName2;
+		CString fileName, fileName2, fileName3;
 		CTime time = CTime::GetCurrentTime();
 		fileName = time.Format(L"./Record/%Y%m%d-%H%M-%S.txt");
 		fileName2 = time.Format(L"./Record/pd%Y%m%d-%H%M-%S.txt");
+		fileName3 = time.Format(L"./Record/pdRaw%Y%m%d-%H%M-%S.txt");
 		
 		m_recFile.Open(fileName, CStdioFile::modeCreate|CStdioFile::modeWrite);
 		m_recFile.WriteString(L"Number	Time	Temperature\n");
 
 		m_recPDFile.Open(fileName2, CStdioFile::modeCreate|CStdioFile::modeWrite);
 		m_recPDFile.WriteString(L"Cycle	Time	Value\n");
+
+		m_recPDFile2.Open(fileName3, CStdioFile::modeCreate|CStdioFile::modeWrite);
+		m_recPDFile2.WriteString(L"Cycle	Time	Value\n");
+
 		m_recordingCount = 0;
 		m_cycleCount = 0;
+		m_cycleCount2 = 0;
 		m_recStartTime = timeGetTime();
 	}
 	else
 	{
 		m_recFile.Close();
 		m_recPDFile.Close();
+		m_recPDFile2.Close();
 	}
 
 	isRecording = !isRecording;
@@ -1156,12 +1168,12 @@ void CMicroPCRDlg::timeTask()
 		if( m_nLeftSec == 11 && 
 			( ((int)(actions[m_currentActionNumber].Temp) == 72) || ((int)(actions[m_currentActionNumber].Temp) == 50) ))
 		{
-			ledControl = 0;
+			ledControl_b = 0;
 		}
 		else if( m_nLeftSec == 0 && 
 			( ((int)(actions[m_currentActionNumber].Temp) == 72) || ((int)(actions[m_currentActionNumber].Temp) == 50) ))
 		{
-			ledControl = 1;
+			ledControl_b = 1;
 		}
 
 		// for graph drawing
@@ -1211,7 +1223,10 @@ void CMicroPCRDlg::PCREndTask()
 	blinkFlag = false;
 	m_timeOut = 0;
 	m_blinkCounter = 0;
-	ledControl = 1;
+	ledControl_wg = 1;
+	ledControl_r = 1;
+	ledControl_g = 1;
+	ledControl_b = 1;
 
 	m_kp = 0;
 	m_ki = 0;
@@ -1250,6 +1265,10 @@ void CMicroPCRDlg::OnTimer(UINT_PTR nIDEvent)
 
 	tx.cmd = currentCmd;
 	tx.currentTargetTemp = (BYTE)m_currentTargetTemp;
+	tx.led_wg = ledControl_wg;
+	tx.led_r = ledControl_r;
+	tx.led_g = ledControl_g;
+	tx.led_b = ledControl_b;
 
 	// pid 값을 buffer 에 복사한다.
 	memcpy(&(tx.pid_p1), &(m_kp), sizeof(float));
@@ -1312,6 +1331,11 @@ void CMicroPCRDlg::OnTimer(UINT_PTR nIDEvent)
 		CString out;
 		out.Format(L"%6d	%8.0f	%3.1f\n", m_recordingCount, (double)(timeGetTime()-m_recStartTime), currentTemp);
 		m_recFile.WriteString(out);
+
+		double lights = (double)(photodiode_h & 0x0f)*255. + (double)(photodiode_l);
+		m_cycleCount2++;
+		out.Format(L"%6d	%8.0f	%3.1f\n", m_cycleCount2, (double)(timeGetTime()-m_recStartTime), lights);
+		m_recPDFile2.WriteString(out);
 	}
 	
 	CDialog::OnTimer(nIDEvent);

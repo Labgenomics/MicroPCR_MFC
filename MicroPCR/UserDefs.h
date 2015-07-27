@@ -157,7 +157,12 @@ typedef struct _TxBuffer
 	BYTE integralMax_3;
 	BYTE integralMax_4;
 
-	BYTE reserved_for_64byte[44];
+	BYTE led_wg;
+	BYTE led_r;
+	BYTE led_g;
+	BYTE led_b;
+
+	BYTE reserved_for_64byte[40];
 } TxBuffer;
 
 typedef enum _ERROR

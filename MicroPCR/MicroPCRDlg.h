@@ -90,10 +90,10 @@ private:
 	int m_timeOut;
 
 	int m_leftGotoCount;
-	int ledControl;
+	int ledControl_wg, ledControl_r, ledControl_g, ledControl_b;
 
-	CStdioFile m_recFile, m_recPDFile;
-	int m_recordingCount, m_cycleCount;
+	CStdioFile m_recFile, m_recPDFile, m_recPDFile2;
+	int m_recordingCount, m_cycleCount, m_cycleCount2;
 
 	// 버튼에 따라 현재 보낼 command 값을 설정한다.
 	BYTE currentCmd;
