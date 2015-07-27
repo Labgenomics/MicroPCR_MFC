@@ -63,6 +63,7 @@ CMicroPCRDlg::CMicroPCRDlg(CWnd* pParent /*=NULL*/)
 	, m_ki(0.0)
 	, m_kd(0.0)
 	, isFanOn(false)
+	, isLedOn(false)
 	, m_cIntegralMax(INTGRALMAX)
 	, loadedPID(L"")
 	, m_cycleCount2(0)
@@ -115,6 +116,7 @@ BEGIN_MESSAGE_MAP(CMicroPCRDlg, CDialog)
 	ON_BN_CLICKED(IDC_BUTTON_GRAPHVIEW, &CMicroPCRDlg::OnBnClickedButtonGraphview)
 	ON_BN_CLICKED(IDC_BUTTON_FAN_CONTROL, &CMicroPCRDlg::OnBnClickedButtonFanControl)
 	ON_BN_CLICKED(IDC_BUTTON_ENTER_PID_MANAGER, &CMicroPCRDlg::OnBnClickedButtonEnterPidManager)
+	ON_BN_CLICKED(IDC_BUTTON_LED_CONTROL, &CMicroPCRDlg::OnBnClickedButtonLedControl)
 END_MESSAGE_MAP()
 
 
@@ -956,6 +958,23 @@ void CMicroPCRDlg::OnBnClickedButtonEnterPidManager()
 	loadPidTable();
 }
 
+void CMicroPCRDlg::OnBnClickedButtonLedControl()
+{
+	isLedOn = !isLedOn;
+
+	if( isLedOn )
+	{
+		ledControl_b = 1;
+		SetDlgItemText(IDC_BUTTON_LED_CONTROL, L"LED OFF");
+	}
+	else
+	{
+		ledControl_b = 0;
+		SetDlgItemText(IDC_BUTTON_LED_CONTROL, L"LED ON");
+	}
+}
+
+
 
 void CMicroPCRDlg::blinkTask()
 {
@@ -1259,12 +1278,13 @@ void CMicroPCRDlg::OnTimer(UINT_PTR nIDEvent)
 	RxBuffer rx;
 	TxBuffer tx;
 	float currentTemp = 0.0;
-	
+
 	memset(&rx, 0, sizeof(RxBuffer));
 	memset(&tx, 0, sizeof(TxBuffer));
 
 	tx.cmd = currentCmd;
 	tx.currentTargetTemp = (BYTE)m_currentTargetTemp;
+	tx.ledControl = 1;
 	tx.led_wg = ledControl_wg;
 	tx.led_r = ledControl_r;
 	tx.led_g = ledControl_g;
@@ -1337,7 +1357,7 @@ void CMicroPCRDlg::OnTimer(UINT_PTR nIDEvent)
 		out.Format(L"%6d	%8.0f	%3.1f\n", m_cycleCount2, (double)(timeGetTime()-m_recStartTime), lights);
 		m_recPDFile2.WriteString(out);
 	}
-	
+
 	CDialog::OnTimer(nIDEvent);
 }
 

@@ -97,7 +97,7 @@ private:
 
 	// 버튼에 따라 현재 보낼 command 값을 설정한다.
 	BYTE currentCmd;
-	bool isFanOn;
+	bool isFanOn, isLedOn;
 
 	// Photodiode 값을 저장
 	BYTE photodiode_h, photodiode_l;
@@ -145,4 +145,5 @@ public:
 	afx_msg void OnBnClickedButtonGraphview();
 	afx_msg void OnBnClickedButtonFanControl();
 	afx_msg void OnBnClickedButtonEnterPidManager();
+	afx_msg void OnBnClickedButtonLedControl();
 };

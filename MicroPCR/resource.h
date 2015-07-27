@@ -45,6 +45,8 @@
 #define IDC_BUTTON_DELETE               1021
 #define IDC_BUTTON_PID_CREATE_REMOVAL   1021
 #define IDC_BUTTON_PID_DELETE           1021
+#define IDC_BUTTON_FAN_CONTROL2         1022
+#define IDC_BUTTON_LED_CONTROL          1022
 #define IDC_EDIT_CURRENT_P              1023
 #define IDC_EDIT_CURRENT_I              1024
 #define IDC_EDIT_CURRENT_D              1025
