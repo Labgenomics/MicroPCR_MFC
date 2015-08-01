@@ -107,7 +107,7 @@ void CPIDCreateDlg::OnBnClickedButtonPidCreateAdd()
 
 	// 현재 값을 저장한다. 
 	// 제거할 수 있는 콤보 박스에도 넣어준다.
-	pids.push_back( PID(m_cStartTemp, m_cTargetTemp, m_cKp, m_cKd, m_cKi) );
+	pids.push_back( PID(m_cStartTemp, m_cTargetTemp, m_cKp, m_cKi, m_cKd) );
 
 	CString label;
 	label.Format(L"PID #%d", pidSize+1);

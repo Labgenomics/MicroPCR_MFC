@@ -19,7 +19,7 @@
 #define TIMER_MAIN				0x01
 
 // Timer Duration
-#define TIMER_DURATION			100
+#define TIMER_DURATION			50
 
 #define CONSTANTS_PATH			L"PCRConstants"
 

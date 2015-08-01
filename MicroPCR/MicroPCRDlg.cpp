@@ -46,8 +46,8 @@ CMicroPCRDlg::CMicroPCRDlg(CWnd* pParent /*=NULL*/)
 	, isFirstDraw(false)
 	, m_startTime(0)
 	, m_nLeftTotalSec(0)
-	, m_prevTargetTemp(0)
-	, m_currentTargetTemp(0)
+	, m_prevTargetTemp(25)
+	, m_currentTargetTemp(25)
 	, m_timeOut(0)
 	, m_leftGotoCount(-1)
 	, m_recordingCount(0)
@@ -836,6 +836,10 @@ void CMicroPCRDlg::OnBnClickedButtonPcrStart()
 
 		currentCmd = CMD_PCR_RUN;
 
+		m_prevTargetTemp = 25;
+		m_currentTargetTemp = (BYTE)actions[0].Temp;
+		findPID();
+
 		if( !isRecording )
 			OnBnClickedButtonPcrRecord();
 
@@ -979,7 +983,7 @@ void CMicroPCRDlg::OnBnClickedButtonLedControl()
 void CMicroPCRDlg::blinkTask()
 {
 	m_blinkCounter++;
-	if( m_blinkCounter > 5 )
+	if( m_blinkCounter > (500/TIMER_DURATION) )
 	{
 		m_blinkCounter = 0;
 		if( isRecording )
@@ -1057,7 +1061,7 @@ void CMicroPCRDlg::timeTask()
 	m_timerCounter++;
 
 	// 1s 마다 실행되도록 설정
-	if( m_timerCounter == 10 )
+	if( m_timerCounter == (1000/TIMER_DURATION) )
 	{
 		m_timerCounter = 0;
 
@@ -1291,6 +1295,7 @@ void CMicroPCRDlg::OnTimer(UINT_PTR nIDEvent)
 	tx.led_b = ledControl_b;
 
 	// pid 값을 buffer 에 복사한다.
+	
 	memcpy(&(tx.pid_p1), &(m_kp), sizeof(float));
 	memcpy(&(tx.pid_i1), &(m_ki), sizeof(float));
 	memcpy(&(tx.pid_d1), &(m_kd), sizeof(float));
@@ -1298,10 +1303,16 @@ void CMicroPCRDlg::OnTimer(UINT_PTR nIDEvent)
 	// integral max 값을 buffer 에 복사한다.
 	memcpy(&(tx.integralMax_1), &(m_cIntegralMax), sizeof(float));
 
-	device->Write((void*)&tx);
+	BYTE senddata[65] = { 0, };
+	BYTE readdata[65] = { 0, };
+	memcpy(senddata, &tx, sizeof(TxBuffer));
+
+	device->Write(senddata);
 
 	if( device->Read(&rx) == 0 )
 		return;
+
+	memcpy(readdata, &rx, sizeof(RxBuffer));
 
 	// Change the currentCmd to Ready after sending once except READY, RUN.
 	if( currentCmd == CMD_FAN_OFF )
@@ -1322,6 +1333,13 @@ void CMicroPCRDlg::OnTimer(UINT_PTR nIDEvent)
 
 	if( fabs(currentTemp-m_currentTargetTemp) < m_cArrivalDelta )
 		isTargetArrival = true;
+
+	if( rx.request_data != 0 )
+	{
+		CString test;
+		test.Format(L"%d\n", rx.request_data);
+		::OutputDebugString(test);
+	}
 
 	CString tempStr;
 	tempStr.Format(L"%3.1f", currentTemp);
