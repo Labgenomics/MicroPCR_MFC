@@ -251,7 +251,7 @@ void CPIDManagerDlg::OnGridEndEdit(NMHDR *pNotifyStruct, LRESULT* pResult)
 		CString kd = m_cPidTable.GetItemText(row, 4);
 		CString ki = m_cPidTable.GetItemText(row, 5);
 
-		pids.push_back( PID( _wtof(startTemp), _wtof(targetTemp), _wtof(kp), _wtof(kd), _wtof(ki) ) );
+		pids.push_back( PID( _wtof(startTemp), _wtof(targetTemp), _wtof(kp), _wtof(ki), _wtof(kd) ) );
 	}
 
 	if( !FileManager::savePID( selectedPID, pids ) ){

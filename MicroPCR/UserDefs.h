@@ -54,25 +54,25 @@ public:
 	float startTemp;
 	float targetTemp;
 	float kp;
-	float kd;
 	float ki;
+	float kd;
 
 	PID()
 		: startTemp(0.)
 		, targetTemp(0.)
 		, kp(0.)
-		, kd(0.)
 		, ki(0.)
+		, kd(0.)
 	{
 	}
 
 	PID(float startTemp, float targetTemp, float kp,
-		float kd, float ki)
+		float ki, float kd)
 		: startTemp(startTemp)
 		, targetTemp(targetTemp)
 		, kp(kp)
-		, kd(kd)
-		, ki(ki)			
+		, ki(ki)
+		, kd(kd)			
 	{
 	}
 };

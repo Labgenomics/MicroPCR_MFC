@@ -10,16 +10,12 @@
 #include "PIDManagerDlg.h"
 
 #include <locale.h>
-#include <mmsystem.h>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
 
-
 // CMicroPCRDlg 대화 상자
-
-
 
 CMicroPCRDlg::CMicroPCRDlg(CWnd* pParent /*=NULL*/)
 	: CDialog(CMicroPCRDlg::IDD, pParent)
@@ -78,6 +74,8 @@ CMicroPCRDlg::~CMicroPCRDlg()
 		delete device;
 	if( actions != NULL )
 		delete []actions;
+	if( m_Timer != NULL )
+		delete m_Timer;
 }
 
 void CMicroPCRDlg::DoDataExchange(CDataExchange* pDX)
@@ -106,7 +104,7 @@ BEGIN_MESSAGE_MAP(CMicroPCRDlg, CDialog)
 	ON_WM_QUERYDRAGICON()
 	ON_WM_DEVICECHANGE()
 	ON_MESSAGE(WM_SET_SERIAL, SetSerial)
-	ON_WM_TIMER()
+	ON_MESSAGE(WM_MMTIMER, OnmmTimer)
 	//}}AFX_MSG_MAP
 	ON_BN_CLICKED(IDC_BUTTON_CONSTANTS, &CMicroPCRDlg::OnBnClickedButtonConstants)
 	ON_BN_CLICKED(IDC_BUTTON_CONSTANTS_APPLY, &CMicroPCRDlg::OnBnClickedButtonConstantsApply)
@@ -210,6 +208,7 @@ BOOL CMicroPCRDlg::OnInitDialog()
 	sensorValues.push_back( 1.0 );
 
 	device = new CDeviceConnect( GetSafeHwnd() );
+	m_Timer = new CMMTimers(1, GetSafeHwnd());
 
 	// 연결 시도
 	BOOL status = device->CheckDevice();
@@ -219,24 +218,15 @@ BOOL CMicroPCRDlg::OnInitDialog()
 		SetDlgItemText(IDC_EDIT_DEVICE_STATUS, L"Connected");
 		isConnected = true;
 
-		CFile file;
-		BOOL status = file.Open(RECENT_PATH, CFile::modeRead);
-		// 최근 프로토콜 경로가 저장된 파일이 있다면
-		if( status )
-		{
-			file.Close();
-			// 그 경로로 파일을 로드하여 리스트를 만든다.
-			loadRecentProtocol();
- 
-			SetTimer(1, TIMER_DURATION, NULL);
-		}
+		CString recentPath;
+		FileManager::loadRecentPath(FileManager::PROTOCOL_PATH, recentPath);
+
+		if( !recentPath.IsEmpty() )
+			readProtocol(recentPath);
 		else
-		{
-			// 파일이 없다면 새로 만들어두고 에러메시지를 호출한다.
-			file.Open(RECENT_PATH, CFile::modeCreate);
-			file.Close();
 			AfxMessageBox(L"No Recent Protocol File! Please Read Protocol!");
-		}
+
+		m_Timer->startTimer(TIMER_DURATION, FALSE);
 	}
 	else
 	{
@@ -314,31 +304,22 @@ BOOL CMicroPCRDlg::OnDeviceChange(UINT nEventType, DWORD dwData)
 		SetDlgItemText(IDC_EDIT_DEVICE_STATUS, L"Connected");
 		isConnected = true;
 
-		CFile file;
-		BOOL status = file.Open(RECENT_PATH, CFile::modeRead);
-		// 최근 프로토콜 경로가 저장된 파일이 있다면
-		if( status )
-		{
-			file.Close();
-			// 그 경로로 파일을 로드하여 리스트를 만든다.
-			loadRecentProtocol();
- 
-			SetTimer(1, TIMER_DURATION, NULL);
-		}
+		CString recentPath;
+		FileManager::loadRecentPath(FileManager::PROTOCOL_PATH, recentPath);
+
+		if( !recentPath.IsEmpty() )
+			readProtocol(recentPath);
 		else
-		{
-			// 파일이 없다면 새로 만들어두고 에러메시지를 호출한다.
-			file.Open(RECENT_PATH, CFile::modeCreate);
-			file.Close();
 			AfxMessageBox(L"No Recent Protocol File! Please Read Protocol!");
-		}
+
+		m_Timer->startTimer(TIMER_DURATION, FALSE);
 	}
 	else
 	{
 		SetDlgItemText(IDC_EDIT_DEVICE_STATUS, L"Disconnected");
 		isConnected = false;
 
-		KillTimer(1);
+		m_Timer->stopTimer();
 	}
 
 	enableWindows();
@@ -471,34 +452,6 @@ void CMicroPCRDlg::enableWindows()
 	GetDlgItem(IDC_BUTTON_PCR_START)->EnableWindow(isConnected&&!loadedPID.IsEmpty());
 	GetDlgItem(IDC_BUTTON_PCR_OPEN)->EnableWindow(isConnected);
 	GetDlgItem(IDC_BUTTON_PCR_RECORD)->EnableWindow(isConnected);
-}
-
-void CMicroPCRDlg::saveRecentProtocol(CString path)
-{
-	CFile file;
-	char str[256] = "";
-	int j =0;
-	file.Open(RECENT_PATH, CFile::modeCreate | CFile::modeWrite);
-	// 프로토콜 파일을 저장하기 위해 경로 설정, 한글이 깨질 수 있기 때문에 추가함.
-	WideCharToMultiByte(CP_ACP, 0, path, -1, str, 256, NULL, NULL);
-	strcat(str, "\r\n");
-	while(str[j] != '\n')
-		j++;
-	file.Write(str, j+3);
-	file.Close();
-}
-
-void CMicroPCRDlg::loadRecentProtocol(void)
-{
-	CString path;
-	CStdioFile file;
-	file.Open(RECENT_PATH, CFile::modeRead);
-	// 경로에 한글이 포함될 수 있기 때문에 추가함.
-	setlocale(LC_ALL, "korean");
-	file.ReadString(path);
-	file.Close();
-
-	readProtocol(path);
 }
 
 void CMicroPCRDlg::readProtocol(CString path)
@@ -798,7 +751,7 @@ void CMicroPCRDlg::OnBnClickedButtonConstantsApply()
 			CString kd = m_cPidTable.GetItemText(row, 4);
 			CString ki = m_cPidTable.GetItemText(row, 5);
 	
-			pids.push_back( PID( _wtof(startTemp), _wtof(targetTemp), _wtof(kp), _wtof(kd), _wtof(ki) ) );
+			pids.push_back( PID( _wtof(startTemp), _wtof(targetTemp), _wtof(kp), _wtof(ki), _wtof(kd) ) );
 		}
 
 		// 변경된 값에 따라 저장해준다.
@@ -843,7 +796,7 @@ void CMicroPCRDlg::OnBnClickedButtonPcrStart()
 		if( !isRecording )
 			OnBnClickedButtonPcrRecord();
 
-		m_startTime = clock();
+		m_startTime = timeGetTime();
 
 		isFirstDraw = false;
 		clearSensorValue();
@@ -852,9 +805,6 @@ void CMicroPCRDlg::OnBnClickedButtonPcrStart()
 	}
 	else
 	{
-		GetDlgItem(IDC_BUTTON_PCR_OPEN)->EnableWindow(TRUE);
-		GetDlgItem(IDC_BUTTON_FAN_CONTROL)->EnableWindow(TRUE);
-
 		PCREndTask();
 	}
 }
@@ -869,7 +819,7 @@ void CMicroPCRDlg::OnBnClickedButtonPcrOpen()
 	CFileDialog fdlg(TRUE, NULL, NULL, NULL, L"*.txt |*.txt|");
 	if( fdlg.DoModal() == IDOK )
 	{
-		saveRecentProtocol(fdlg.GetPathName());
+		FileManager::saveRecentPath(FileManager::PROTOCOL_PATH, fdlg.GetPathName());
 
 		m_sProtocolName = getProtocolName(fdlg.GetPathName());
 
@@ -1216,7 +1166,7 @@ void CMicroPCRDlg::timeTask()
 		}
 	}
 
-	int elapsed_time = (int)((((double)clock())-m_startTime)/1000.);
+	int elapsed_time = (int)((double)(timeGetTime()-m_startTime)/1000.);
 	int min = elapsed_time/60;
 	int sec = elapsed_time%60;
 	CString temp;
@@ -1266,10 +1216,13 @@ void CMicroPCRDlg::PCREndTask()
 	else
 		AfxMessageBox(L"PCR incomplete!!");
 
+	GetDlgItem(IDC_BUTTON_PCR_OPEN)->EnableWindow(TRUE);
+	GetDlgItem(IDC_BUTTON_FAN_CONTROL)->EnableWindow(TRUE);
+
 	isCompletePCR = false;
 }
 
-void CMicroPCRDlg::OnTimer(UINT_PTR nIDEvent)
+LRESULT CMicroPCRDlg::OnmmTimer(WPARAM wParam, LPARAM lParam)
 {
 	blinkTask();
 
@@ -1310,7 +1263,7 @@ void CMicroPCRDlg::OnTimer(UINT_PTR nIDEvent)
 	device->Write(senddata);
 
 	if( device->Read(&rx) == 0 )
-		return;
+		return FALSE;
 
 	memcpy(readdata, &rx, sizeof(RxBuffer));
 
@@ -1329,7 +1282,7 @@ void CMicroPCRDlg::OnTimer(UINT_PTR nIDEvent)
 	photodiode_l = rx.photodiode_l;
 
 	if( currentTemp < 0.0 )
-		return;
+		return FALSE;
 
 	if( fabs(currentTemp-m_currentTargetTemp) < m_cArrivalDelta )
 		isTargetArrival = true;
@@ -1376,9 +1329,8 @@ void CMicroPCRDlg::OnTimer(UINT_PTR nIDEvent)
 		m_recPDFile2.WriteString(out);
 	}
 
-	CDialog::OnTimer(nIDEvent);
+	return FALSE;
 }
-
 
 void CMicroPCRDlg::addSensorValue(double val)
 {

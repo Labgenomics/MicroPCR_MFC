@@ -8,6 +8,7 @@
 #include ".\gridctrl_src\gridctrl.h"
 #include "Chart.h"
 #include "UserDefs.h"
+#include "mmtimers.h"
 
 // CMicroPCRDlg 대화 상자
 class CMicroPCRDlg : public CDialog
@@ -25,9 +26,7 @@ private:
 	CGridCtrl m_cPidTable;
 	CListCtrl m_cProtocolList;
 
-#ifdef USE_MMTIMER
 	CMMTimers* m_Timer;
-#endif
 
 	CXYChart m_Chart;
 	vector< double > sensorValues;
@@ -62,8 +61,6 @@ private:
 	
 	Action *actions;
 	
-	void saveRecentProtocol(CString path);
-	void loadRecentProtocol();
 	void readProtocol(CString path);
 	void displayList();
 	CString getProtocolName(CString path);
@@ -127,11 +124,8 @@ protected:
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
 	afx_msg LRESULT SetSerial(WPARAM wParam, LPARAM lParam);
-#ifdef USE_MMTIMER
+
 	virtual LRESULT OnmmTimer(WPARAM wParam, LPARAM lParam);
-#else
-	afx_msg void OnTimer(UINT_PTR nIDEvent);
-#endif
 	DECLARE_MESSAGE_MAP()
 public:
 	BOOL OnDeviceChange(UINT nEventType, DWORD dwData);
