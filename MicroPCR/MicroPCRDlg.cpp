@@ -115,6 +115,7 @@ BEGIN_MESSAGE_MAP(CMicroPCRDlg, CDialog)
 	ON_BN_CLICKED(IDC_BUTTON_FAN_CONTROL, &CMicroPCRDlg::OnBnClickedButtonFanControl)
 	ON_BN_CLICKED(IDC_BUTTON_ENTER_PID_MANAGER, &CMicroPCRDlg::OnBnClickedButtonEnterPidManager)
 	ON_BN_CLICKED(IDC_BUTTON_LED_CONTROL, &CMicroPCRDlg::OnBnClickedButtonLedControl)
+	ON_BN_CLICKED(IDC_BUTTON_GO_BOOTLOADER, &CMicroPCRDlg::OnBnClickedButtonGoBootloader)
 END_MESSAGE_MAP()
 
 
@@ -301,7 +302,12 @@ BOOL CMicroPCRDlg::OnDeviceChange(UINT nEventType, DWORD dwData)
 
 	if( status )
 	{
+		// 중복 connection 막기
+		if( isConnected ) 
+			return TRUE;
+
 		SetDlgItemText(IDC_EDIT_DEVICE_STATUS, L"Connected");
+
 		isConnected = true;
 
 		CString recentPath;
@@ -1363,4 +1369,8 @@ void CMicroPCRDlg::clearSensorValue()
 
 	m_Chart.DeleteAllData();
 	InvalidateRect(&CRect(15, 350, 1155, 760));
+}
+
+void CMicroPCRDlg::OnBnClickedButtonGoBootloader()
+{
 }

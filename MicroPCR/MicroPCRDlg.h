@@ -140,4 +140,5 @@ public:
 	afx_msg void OnBnClickedButtonFanControl();
 	afx_msg void OnBnClickedButtonEnterPidManager();
 	afx_msg void OnBnClickedButtonLedControl();
+	afx_msg void OnBnClickedButtonGoBootloader();
 };

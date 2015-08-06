@@ -45,11 +45,12 @@
 #define IDC_BUTTON_DELETE               1021
 #define IDC_BUTTON_PID_CREATE_REMOVAL   1021
 #define IDC_BUTTON_PID_DELETE           1021
-#define IDC_BUTTON_FAN_CONTROL2         1022
 #define IDC_BUTTON_LED_CONTROL          1022
 #define IDC_EDIT_CURRENT_P              1023
 #define IDC_EDIT_CURRENT_I              1024
 #define IDC_EDIT_CURRENT_D              1025
+#define IDC_BUTTON_LED_CONTROL2         1026
+#define IDC_BUTTON_GO_BOOTLOADER        1026
 #define IDC_CUSTOM_PID_TABLE2           1027
 #define IDC_LIST_PID                    1028
 #define IDC_EDIT_PID_START_TEMP         1029
@@ -73,7 +74,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        138
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1038
+#define _APS_NEXT_CONTROL_VALUE         1039
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif
