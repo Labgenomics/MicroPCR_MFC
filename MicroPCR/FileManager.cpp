@@ -132,4 +132,21 @@ namespace FileManager
 
 		return res;
 	}
+
+	void log(CString msg)
+	{
+		CTime time = CTime::GetCurrentTime();
+		static CString path = time.Format(L"./Log/%Y%m%d-%H%M-%S.txt");
+
+		CStdioFile file;
+		CFileFind finder;
+		if( finder.FindFile(path) )
+			file.Open(path, CStdioFile::modeWrite);
+		else
+			file.Open(path, CStdioFile::modeCreate|CStdioFile::modeWrite);
+
+		file.SeekToEnd();
+		file.WriteString(time.Format(L"[%Y:%m:%d-%H:%M:%S] ") + msg);
+		file.Close();
+	}
 };

@@ -19,4 +19,6 @@ namespace FileManager
 
 	bool loadPID(CString label, vector< PID > &pid);
 	bool savePID(CString label, vector< PID > &pid);
+
+	void log(CString msg);
 };

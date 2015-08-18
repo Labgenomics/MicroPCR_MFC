@@ -140,6 +140,10 @@ BOOL CMicroPCRDlg::OnInitDialog()
 	m_cProgressBar.SetRange32(-10, 110);
 	m_cProgressBar.SendMessage(PBM_SETBARCOLOR,0,RGB(200, 0, 50));
 
+	CreateDirectory(L"./Log/", NULL);
+	FileManager::log(L"test\n");
+	FileManager::log(L"test2\n");
+
 	SetDlgItemText(IDC_EDIT_ELAPSED_TIME, L"0m 0s");
 
 	CFont font;
@@ -807,6 +811,9 @@ void CMicroPCRDlg::OnBnClickedButtonPcrStart()
 		isFirstDraw = false;
 		clearSensorValue();
 
+		// Log 파일을 사용하기 위한 폴더 생성
+		CreateDirectory(L"./Log/", NULL);
+
 		SetTimer(1, TIMER_DURATION, NULL);
 	}
 	else
@@ -1014,6 +1021,15 @@ void CMicroPCRDlg::findPID()
 
 void CMicroPCRDlg::timeTask()
 {
+	// elapse time 
+	int elapsed_time = (int)((double)(timeGetTime()-m_startTime)/1000.);
+	int min = elapsed_time/60;
+	int sec = elapsed_time%60;
+	CString temp;
+	temp.Format(L"%dm %ds", min, sec);
+	SetDlgItemText(IDC_EDIT_ELAPSED_TIME, temp);
+
+	// timer counter increased
 	m_timerCounter++;
 
 	// 1s 마다 실행되도록 설정
@@ -1171,13 +1187,6 @@ void CMicroPCRDlg::timeTask()
 			}
 		}
 	}
-
-	int elapsed_time = (int)((double)(timeGetTime()-m_startTime)/1000.);
-	int min = elapsed_time/60;
-	int sec = elapsed_time%60;
-	CString temp;
-	temp.Format(L"%dm %ds", min, sec);
-	SetDlgItemText(IDC_EDIT_ELAPSED_TIME, temp);
 }
 
 void CMicroPCRDlg::PCREndTask()
@@ -1333,6 +1342,40 @@ LRESULT CMicroPCRDlg::OnmmTimer(WPARAM wParam, LPARAM lParam)
 		m_cycleCount2++;
 		out.Format(L"%6d	%8.0f	%3.1f\n", m_cycleCount2, (double)(timeGetTime()-m_recStartTime), lights);
 		m_recPDFile2.WriteString(out);
+
+		// for log message per 1 sec
+		if( m_recordingCount % 20 == 0 ){
+			int elapsed_time = (int)((double)(timeGetTime()-m_startTime)/1000.);
+			int min = elapsed_time/60;
+			int sec = elapsed_time%60;
+			CString elapseTime, lineTime, totalTime;
+			elapseTime.Format(L"%dm %ds", min, sec);
+
+			min = m_nLeftSec/60;
+			sec = m_nLeftSec%60;
+
+			// current left protocol time
+			if( min == 0 )
+				lineTime.Format(L"%ds", sec);
+			else
+				lineTime.Format(L"%dm %ds", min, sec);
+			
+			// total left protocol time
+			min = m_nLeftTotalSec/60;
+			sec = m_nLeftTotalSec%60;
+
+			if( min == 0 )
+				totalTime.Format(L"%ds", sec);
+			else
+				totalTime.Format(L"%dm %ds", min, sec);
+
+			// tempStr, currentCmd, m_currentTargetTemp
+
+			CString log;
+			log.Format(L"cmd: %d, targetTemp: %3.1f, temp: %s, elapsed time: %s, line Time: %s, protocol Time: %s\n", 
+				currentCmd, m_currentTargetTemp, elapseTime, lineTime, totalTime);
+			FileManager::log(log);
+		}
 	}
 
 	return FALSE;
