@@ -140,10 +140,6 @@ BOOL CMicroPCRDlg::OnInitDialog()
 	m_cProgressBar.SetRange32(-10, 110);
 	m_cProgressBar.SendMessage(PBM_SETBARCOLOR,0,RGB(200, 0, 50));
 
-	CreateDirectory(L"./Log/", NULL);
-	FileManager::log(L"test\n");
-	FileManager::log(L"test2\n");
-
 	SetDlgItemText(IDC_EDIT_ELAPSED_TIME, L"0m 0s");
 
 	CFont font;
@@ -1369,11 +1365,9 @@ LRESULT CMicroPCRDlg::OnmmTimer(WPARAM wParam, LPARAM lParam)
 			else
 				totalTime.Format(L"%dm %ds", min, sec);
 
-			// tempStr, currentCmd, m_currentTargetTemp
-
 			CString log;
 			log.Format(L"cmd: %d, targetTemp: %3.1f, temp: %s, elapsed time: %s, line Time: %s, protocol Time: %s\n", 
-				currentCmd, m_currentTargetTemp, elapseTime, lineTime, totalTime);
+				currentCmd, m_currentTargetTemp, tempStr, elapseTime, lineTime, totalTime);
 			FileManager::log(log);
 		}
 	}
