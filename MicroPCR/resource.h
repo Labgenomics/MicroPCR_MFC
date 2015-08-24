@@ -11,6 +11,7 @@
 #define IDD_DIALOG_PID_MANAGER          135
 #define IDD_DIALOG_PID_CREATE           136
 #define IDD_DIALOG_SAVE                 137
+#define IDD_DIALOG_TEMP_GRAPH           138
 #define IDC_EDIT_DEVICE_STATUS          1000
 #define IDC_EDIT_CHAMBER_TEMP           1001
 #define IDC_PROGRESS_CHAMBER_TEMP       1002
@@ -49,8 +50,6 @@
 #define IDC_EDIT_CURRENT_P              1023
 #define IDC_EDIT_CURRENT_I              1024
 #define IDC_EDIT_CURRENT_D              1025
-#define IDC_BUTTON_LED_CONTROL2         1026
-#define IDC_BUTTON_GO_BOOTLOADER        1026
 #define IDC_CUSTOM_PID_TABLE2           1027
 #define IDC_LIST_PID                    1028
 #define IDC_EDIT_PID_START_TEMP         1029
@@ -67,14 +66,16 @@
 #define IDC_EDIT_LOADED_PID             1036
 #define IDC_EDIT_SAVE_LABEL             1036
 #define IDC_STATIC_SAVE_LABEL           1037
+#define IDC_CHECK1                      1039
+#define IDC_CHECK_TEMP_GRAPH            1039
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        138
+#define _APS_NEXT_RESOURCE_VALUE        139
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1039
+#define _APS_NEXT_CONTROL_VALUE         1040
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

@@ -245,6 +245,10 @@
 					/>
 				</FileConfiguration>
 			</File>
+			<File
+				RelativePath=".\TempGraphDlg.cpp"
+				>
+			</File>
 			<Filter
 				Name="GridControl"
 				>
@@ -325,6 +329,14 @@
 					>
 				</File>
 			</Filter>
+			<Filter
+				Name="GraphControl"
+				>
+				<File
+					RelativePath=".\GraphControl\GraphCtrl.cpp"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="헤더 파일"
@@ -377,6 +389,10 @@
 			</File>
 			<File
 				RelativePath=".\targetver.h"
+				>
+			</File>
+			<File
+				RelativePath=".\TempGraphDlg.h"
 				>
 			</File>
 			<File
@@ -468,6 +484,14 @@
 				</File>
 				<File
 					RelativePath=".\CPlot Sources\PlotSettingsDialog.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="GrahControl"
+				>
+				<File
+					RelativePath=".\GraphControl\GraphCtrl.h"
 					>
 				</File>
 			</Filter>

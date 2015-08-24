@@ -63,6 +63,7 @@ CMicroPCRDlg::CMicroPCRDlg(CWnd* pParent /*=NULL*/)
 	, m_cIntegralMax(INTGRALMAX)
 	, loadedPID(L"")
 	, m_cycleCount2(0)
+	, isTempGraphOn(false)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -115,7 +116,9 @@ BEGIN_MESSAGE_MAP(CMicroPCRDlg, CDialog)
 	ON_BN_CLICKED(IDC_BUTTON_FAN_CONTROL, &CMicroPCRDlg::OnBnClickedButtonFanControl)
 	ON_BN_CLICKED(IDC_BUTTON_ENTER_PID_MANAGER, &CMicroPCRDlg::OnBnClickedButtonEnterPidManager)
 	ON_BN_CLICKED(IDC_BUTTON_LED_CONTROL, &CMicroPCRDlg::OnBnClickedButtonLedControl)
-	ON_BN_CLICKED(IDC_BUTTON_GO_BOOTLOADER, &CMicroPCRDlg::OnBnClickedButtonGoBootloader)
+	ON_BN_CLICKED(IDC_CHECK_TEMP_GRAPH, &CMicroPCRDlg::OnBnClickedCheckTempGraph)
+	ON_WM_MOVING()
+	ON_WM_SIZE()
 END_MESSAGE_MAP()
 
 
@@ -712,8 +715,12 @@ void CMicroPCRDlg::OnBnClickedButtonConstants()
 	{
 		if( openGraphView )
 			OnBnClickedButtonGraphview();
-
-		SetWindowPos(NULL, w/5, h/3, 1175, 375, SWP_NOZORDER);
+		
+		// openConstants
+		if( isTempGraphOn )
+			SetWindowPos(NULL, 100, h/3, 1175, 375, SWP_NOZORDER);
+		else
+			SetWindowPos(NULL, w/5, h/3, 1175, 375, SWP_NOZORDER);
 		SetDlgItemText(IDC_BUTTON_CONSTANTS, L"PID ´Ý±â");
 	}
 
@@ -1298,13 +1305,6 @@ LRESULT CMicroPCRDlg::OnmmTimer(WPARAM wParam, LPARAM lParam)
 	if( fabs(currentTemp-m_currentTargetTemp) < m_cArrivalDelta )
 		isTargetArrival = true;
 
-	if( rx.request_data != 0 )
-	{
-		CString test;
-		test.Format(L"%d\n", rx.request_data);
-		::OutputDebugString(test);
-	}
-
 	CString tempStr;
 	tempStr.Format(L"%3.1f", currentTemp);
 	SetDlgItemText(IDC_EDIT_CHAMBER_TEMP, tempStr);
@@ -1318,6 +1318,9 @@ LRESULT CMicroPCRDlg::OnmmTimer(WPARAM wParam, LPARAM lParam)
 	SetDlgItemText(IDC_EDIT_CURRENT_I, pidstr);
 	pidstr.Format(L"%.1f", m_kd);
 	SetDlgItemText(IDC_EDIT_CURRENT_D, pidstr);
+
+	if( isTempGraphOn && isStarted )
+		tempGraphDlg.addData(currentTemp);
 
 	// Check the error from device
 	static bool onceShow = true;
@@ -1408,6 +1411,52 @@ void CMicroPCRDlg::clearSensorValue()
 	InvalidateRect(&CRect(15, 350, 1155, 760));
 }
 
-void CMicroPCRDlg::OnBnClickedButtonGoBootloader()
+void CMicroPCRDlg::OnBnClickedCheckTempGraph()
 {
+	CButton* check = (CButton*)GetDlgItem(IDC_CHECK_TEMP_GRAPH);
+	isTempGraphOn = check->GetCheck();
+
+	if( isTempGraphOn ){
+		if( openConstants )
+			SetWindowPos(NULL, 100, GetSystemMetrics(SM_CYSCREEN)/3, 1175, 375, SWP_NOZORDER);
+
+		tempGraphDlg.Create(IDD_DIALOG_TEMP_GRAPH, this);
+		
+		CRect parent_rect, rect;
+		tempGraphDlg.GetClientRect(&rect);
+		GetWindowRect(&parent_rect);
+		
+		tempGraphDlg.SetWindowPos(this, parent_rect.right+10, parent_rect.top, 
+			rect.Width(), rect.Height(),  SWP_SHOWWINDOW|SWP_NOSIZE|SWP_NOZORDER|SWP_FRAMECHANGED);
+	}
+	else
+		tempGraphDlg.DestroyWindow();
+}
+
+void CMicroPCRDlg::OnMoving(UINT fwSide, LPRECT pRect)
+{
+	CDialog::OnMoving(fwSide, pRect);
+
+	if( isTempGraphOn ){
+		CRect parent_rect, rect;
+		tempGraphDlg.GetClientRect(&rect);
+		GetWindowRect(&parent_rect);
+		
+		tempGraphDlg.SetWindowPos(this, parent_rect.right+10, parent_rect.top, 
+			rect.Width(), rect.Height(),  SWP_SHOWWINDOW|SWP_NOSIZE|SWP_NOZORDER|SWP_FRAMECHANGED);
+	}
+}
+
+void CMicroPCRDlg::OnSize(UINT nType, int cx, int cy)
+{
+	CDialog::OnSize(nType, cx, cy);
+
+	if( isTempGraphOn ){
+		CRect parent_rect, rect;
+		tempGraphDlg.GetClientRect(&rect);
+		GetWindowRect(&parent_rect);
+		
+		tempGraphDlg.SetWindowPos(this, parent_rect.right+10, parent_rect.top, 
+			rect.Width(), rect.Height(),  SWP_SHOWWINDOW|SWP_NOSIZE|SWP_NOZORDER|SWP_FRAMECHANGED);
+	}
 }

@@ -9,6 +9,7 @@
 #include "Chart.h"
 #include "UserDefs.h"
 #include "mmtimers.h"
+#include "TempGraphDlg.h"
 
 // CMicroPCRDlg 대화 상자
 class CMicroPCRDlg : public CDialog
@@ -103,6 +104,10 @@ private:
 
 	CString loadedPID;
 
+	// For temp graph
+	CTempGraphDlg tempGraphDlg;
+	bool isTempGraphOn;
+
 // 생성입니다.
 public:
 	CMicroPCRDlg(CWnd* pParent = NULL);	// 표준 생성자입니다.
@@ -140,5 +145,7 @@ public:
 	afx_msg void OnBnClickedButtonFanControl();
 	afx_msg void OnBnClickedButtonEnterPidManager();
 	afx_msg void OnBnClickedButtonLedControl();
-	afx_msg void OnBnClickedButtonGoBootloader();
+	afx_msg void OnBnClickedCheckTempGraph();
+	afx_msg void OnMoving(UINT fwSide, LPRECT pRect);
+	afx_msg void OnSize(UINT nType, int cx, int cy);
 };
