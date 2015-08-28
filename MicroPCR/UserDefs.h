@@ -46,7 +46,7 @@ static const CString PID_TABLE_COLUMNS[5] = { L"Start Temp", L"Target Temp", L"K
 
 #define SET_BUTTON_IMAGE(button, img)	((CButton*)GetDlgItem(button))->SetBitmap((HBITMAP)img)
 
-#define FAN_STOP_TEMPDIF		1
+#define FAN_STOP_TEMPDIF		-4.0
 #define INTGRALMAX				2600.0
 
 class PID{

@@ -108,6 +108,9 @@ private:
 	CTempGraphDlg tempGraphDlg;
 	bool isTempGraphOn;
 
+	// For target temp comparison
+	bool targetTempFlag;
+
 // 생성입니다.
 public:
 	CMicroPCRDlg(CWnd* pParent = NULL);	// 표준 생성자입니다.

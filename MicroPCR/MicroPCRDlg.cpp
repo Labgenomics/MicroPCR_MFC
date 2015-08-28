@@ -64,6 +64,7 @@ CMicroPCRDlg::CMicroPCRDlg(CWnd* pParent /*=NULL*/)
 	, loadedPID(L"")
 	, m_cycleCount2(0)
 	, isTempGraphOn(false)
+	, targetTempFlag(false)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -1060,6 +1061,9 @@ void CMicroPCRDlg::timeTask()
 				m_prevTargetTemp = m_currentTargetTemp;
 				m_currentTargetTemp = (int)actions[m_currentActionNumber].Temp;
 
+				// 150828 YJ added for target temperature comparison by case
+				targetTempFlag = m_prevTargetTemp > m_currentTargetTemp;
+
 				isTargetArrival = false;
 				m_nLeftSec = (int)(actions[m_currentActionNumber].Time);
 				m_timeOut = m_cTimeOut*10;
@@ -1302,7 +1306,11 @@ LRESULT CMicroPCRDlg::OnmmTimer(WPARAM wParam, LPARAM lParam)
 	if( currentTemp < 0.0 )
 		return FALSE;
 
-	if( fabs(currentTemp-m_currentTargetTemp) < m_cArrivalDelta )
+	// 150828 YJ added
+	if( targetTempFlag && (currentTemp-m_currentTargetTemp <= FAN_STOP_TEMPDIF) )
+		targetTempFlag = false;
+
+	if( fabs(currentTemp-m_currentTargetTemp) < m_cArrivalDelta && !targetTempFlag )
 		isTargetArrival = true;
 
 	CString tempStr;
