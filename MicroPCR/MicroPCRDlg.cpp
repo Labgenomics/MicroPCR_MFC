@@ -793,6 +793,8 @@ void CMicroPCRDlg::OnBnClickedButtonPcrStart()
 
 	if( !isStarted )
 	{
+		initValues();
+
 		isStarted = true;
 
 		KillTimer(1);
@@ -1201,8 +1203,28 @@ void CMicroPCRDlg::PCREndTask()
 	if( isRecording )
 		OnBnClickedButtonPcrRecord();
 
+	// isStarted 와 initValues 의 위치는 절대로 변경하지 말 것.
+	initValues();
+
 	isStarted = false;
-	currentCmd = CMD_PCR_STOP;
+
+	SetDlgItemText(IDC_BUTTON_PCR_START, L"PCR Start");
+
+	if( isCompletePCR )
+		AfxMessageBox(L"PCR ended!!");
+	else
+		AfxMessageBox(L"PCR incomplete!!");
+
+	GetDlgItem(IDC_BUTTON_PCR_OPEN)->EnableWindow(TRUE);
+	GetDlgItem(IDC_BUTTON_FAN_CONTROL)->EnableWindow(TRUE);
+
+	isCompletePCR = false;
+}
+
+void CMicroPCRDlg::initValues()
+{
+	if( !isCompletePCR && isStarted )
+		currentCmd = CMD_PCR_STOP;
 
 	m_currentActionNumber = -1;
 	m_nLeftSec = 0;
@@ -1230,18 +1252,6 @@ void CMicroPCRDlg::PCREndTask()
 	isTargetArrival = false;
 
 	m_prevTargetTemp = m_currentTargetTemp = 25;
-
-	SetDlgItemText(IDC_BUTTON_PCR_START, L"PCR Start");
-
-	if( isCompletePCR )
-		AfxMessageBox(L"PCR ended!!");
-	else
-		AfxMessageBox(L"PCR incomplete!!");
-
-	GetDlgItem(IDC_BUTTON_PCR_OPEN)->EnableWindow(TRUE);
-	GetDlgItem(IDC_BUTTON_FAN_CONTROL)->EnableWindow(TRUE);
-
-	isCompletePCR = false;
 }
 
 LRESULT CMicroPCRDlg::OnmmTimer(WPARAM wParam, LPARAM lParam)

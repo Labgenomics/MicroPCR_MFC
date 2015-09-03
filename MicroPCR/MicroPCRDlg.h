@@ -56,6 +56,9 @@ private:
 	void saveConstants();
 	void enableWindows();
 
+	// for initialize
+	void initValues();
+
 	CString m_sProtocolName;
 	int m_totalActionNumber;
 	int m_currentActionNumber;
