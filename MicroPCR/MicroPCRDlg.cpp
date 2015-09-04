@@ -1317,7 +1317,8 @@ LRESULT CMicroPCRDlg::OnmmTimer(WPARAM wParam, LPARAM lParam)
 		return FALSE;
 
 	// 150828 YJ added
-	if( targetTempFlag && (currentTemp-m_currentTargetTemp <= FAN_STOP_TEMPDIF) )
+	// 150904 YJ changed, for waiting device flag
+	if( targetTempFlag && rx.targetArrival )
 		targetTempFlag = false;
 
 	if( fabs(currentTemp-m_currentTargetTemp) < m_cArrivalDelta && !targetTempFlag )

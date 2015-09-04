@@ -121,7 +121,9 @@ typedef struct _RxBuffer
 	// For request command
 	BYTE request_data;
 
-	BYTE reserved_for_64byte[53];
+	BYTE targetArrival;
+
+	BYTE reserved_for_64byte[52];
 } RxBuffer;
 
 typedef struct _TxBuffer
