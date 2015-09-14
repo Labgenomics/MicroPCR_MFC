@@ -1223,7 +1223,8 @@ void CMicroPCRDlg::PCREndTask()
 
 void CMicroPCRDlg::initValues()
 {
-	if( !isCompletePCR && isStarted )
+	// 150914 YJ changed for sending stop message to device.
+	if( isStarted )
 		currentCmd = CMD_PCR_STOP;
 
 	m_currentActionNumber = -1;
