@@ -113,6 +113,8 @@ private:
 
 	// For target temp comparison
 	bool targetTempFlag;
+	bool freeRunning;
+	int freeRunningCounter;
 
 // 생성입니다.
 public:

@@ -65,6 +65,8 @@ CMicroPCRDlg::CMicroPCRDlg(CWnd* pParent /*=NULL*/)
 	, m_cycleCount2(0)
 	, isTempGraphOn(false)
 	, targetTempFlag(false)
+	, freeRunning(false)
+	, freeRunningCounter(0)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -1319,8 +1321,29 @@ LRESULT CMicroPCRDlg::OnmmTimer(WPARAM wParam, LPARAM lParam)
 
 	// 150828 YJ added
 	// 150904 YJ changed, for waiting device flag
+	// 150918 YJ deleted, bug by usb communication
+	/*
 	if( targetTempFlag && rx.targetArrival )
 		targetTempFlag = false;
+	*/
+
+	// 150918 YJ added, For falling stage routine
+	if( targetTempFlag && !freeRunning ){
+		if( currentTemp-m_currentTargetTemp <= FAN_STOP_TEMPDIF ){
+			freeRunning = true;
+			freeRunningCounter = 0;
+		}
+	}
+
+	if( freeRunning ){
+		freeRunningCounter++;
+		if( freeRunningCounter >= (2000/TIMER_DURATION) ){
+			targetTempFlag = false;
+			freeRunning = false;
+			freeRunningCounter = 0;
+			isTargetArrival = true;
+		}
+	}
 
 	if( fabs(currentTemp-m_currentTargetTemp) < m_cArrivalDelta && !targetTempFlag )
 		isTargetArrival = true;
@@ -1389,8 +1412,8 @@ LRESULT CMicroPCRDlg::OnmmTimer(WPARAM wParam, LPARAM lParam)
 				totalTime.Format(L"%dm %ds", min, sec);
 
 			CString log;
-			log.Format(L"cmd: %d, targetTemp: %3.1f, temp: %s, elapsed time: %s, line Time: %s, protocol Time: %s\n", 
-				currentCmd, m_currentTargetTemp, tempStr, elapseTime, lineTime, totalTime);
+			log.Format(L"cmd: %d, targetTemp: %3.1f, temp: %s, elapsed time: %s, line Time: %s, protocol Time: %s, device TargetArr: %d, mfc TargetArr: %d\n", 
+				currentCmd, m_currentTargetTemp, tempStr, elapseTime, lineTime, totalTime, (int)rx.targetArrival, (int)isTargetArrival);
 			FileManager::log(log);
 		}
 	}
