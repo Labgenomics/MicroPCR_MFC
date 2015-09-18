@@ -1329,7 +1329,8 @@ LRESULT CMicroPCRDlg::OnmmTimer(WPARAM wParam, LPARAM lParam)
 
 	// 150918 YJ added, For falling stage routine
 	if( targetTempFlag && !freeRunning ){
-		if( currentTemp-m_currentTargetTemp <= FAN_STOP_TEMPDIF ){
+		// target temp 이하가 되는 순간부터 freeRunning 으로 
+		if( currentTemp <= m_currentTargetTemp ){
 			freeRunning = true;
 			freeRunningCounter = 0;
 		}
@@ -1337,7 +1338,8 @@ LRESULT CMicroPCRDlg::OnmmTimer(WPARAM wParam, LPARAM lParam)
 
 	if( freeRunning ){
 		freeRunningCounter++;
-		if( freeRunningCounter >= (2000/TIMER_DURATION) ){
+		// 기기와 다르게 3초 후부터 arrival 로 인식하도록 변경
+		if( freeRunningCounter >= (3000/TIMER_DURATION) ){
 			targetTempFlag = false;
 			freeRunning = false;
 			freeRunningCounter = 0;
