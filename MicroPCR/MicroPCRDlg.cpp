@@ -1156,8 +1156,7 @@ void CMicroPCRDlg::timeTask()
 
 		// 150108 YJ for camera shoot
 		if( m_currentActionNumber != 0 && 
-			( m_nLeftSec == 10 &&( m_currentActionNumber == 3 || m_currentActionNumber == 6)) ||
-			  m_nLeftSec == 1 &&(m_currentActionNumber == 3))
+			( m_nLeftSec == 1 && ((int)(actions[m_currentActionNumber].Temp) == 72) ))
 		{
 			dslr_title = "";
 			EnumWindows(EnumWindowsProc, NULL);
@@ -1171,13 +1170,13 @@ void CMicroPCRDlg::timeTask()
 			}
 		}
 
-		if( m_nLeftSec == 11 && 
-			( ((int)(actions[m_currentActionNumber].Temp) == 72) || ((int)(actions[m_currentActionNumber].Temp) == 50) ))
+		if( m_currentActionNumber != 0 && 
+			m_nLeftSec == 2 && ((int)(actions[m_currentActionNumber].Temp) == 72) )
 		{
 			ledControl_b = 0;
 		}
-		else if( m_nLeftSec == 0 && 
-			( ((int)(actions[m_currentActionNumber].Temp) == 72) || ((int)(actions[m_currentActionNumber].Temp) == 50) ))
+		else if( m_currentActionNumber != 0 && 
+			m_nLeftSec == 0 && ((int)(actions[m_currentActionNumber].Temp) == 72) )
 		{
 			ledControl_b = 1;
 		}
