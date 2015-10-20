@@ -1208,9 +1208,40 @@ void CMicroPCRDlg::PCREndTask()
 	if( isRecording )
 		OnBnClickedButtonPcrRecord();
 
-	// isStarted 와 initValues 의 위치는 절대로 변경하지 말 것.
 	initValues();
 
+	// 151020 YJ
+	m_Timer->stopTimer();
+	GetDlgItem(IDC_BUTTON_PCR_START)->EnableWindow(FALSE);
+	
+	while( true ){
+		RxBuffer rx;
+		TxBuffer tx;
+
+		memset(&rx, 0, sizeof(RxBuffer));
+		memset(&tx, 0, sizeof(TxBuffer));
+
+		tx.cmd = CMD_PCR_STOP;
+
+		BYTE senddata[65] = { 0, };
+		BYTE readdata[65] = { 0, };
+		memcpy(senddata, &tx, sizeof(TxBuffer));
+
+		device->Write(senddata);
+
+		device->Read(&rx);
+
+		memcpy(readdata, &rx, sizeof(RxBuffer));
+
+		if( rx.state == STATE_READY ){
+			break;
+		}
+
+		Sleep(TIMER_DURATION);
+	}
+
+	m_Timer->startTimer(TIMER_DURATION, FALSE);
+	GetDlgItem(IDC_BUTTON_PCR_START)->EnableWindow(TRUE);
 	isStarted = false;
 
 	SetDlgItemText(IDC_BUTTON_PCR_START, L"PCR Start");
@@ -1233,10 +1264,6 @@ void CMicroPCRDlg::PCREndTask()
 
 void CMicroPCRDlg::initValues()
 {
-	// 150914 YJ changed for sending stop message to device.
-	if( isStarted )
-		currentCmd = CMD_PCR_STOP;
-
 	m_currentActionNumber = -1;
 	m_nLeftSec = 0;
 	m_nLeftTotalSec = 0;
@@ -1314,11 +1341,6 @@ LRESULT CMicroPCRDlg::OnmmTimer(WPARAM wParam, LPARAM lParam)
 	// Change the currentCmd to Ready after sending once except READY, RUN.
 	if( currentCmd == CMD_FAN_OFF )
 		currentCmd = CMD_READY;
-	else if( currentCmd == CMD_PCR_STOP ){
-		if( rx.state == STATE_READY ){
-			currentCmd = CMD_READY;
-		}
-	}
 
 	// 기기로부터 받은 온도 값을 받아와서 저장함.
 	// convert BYTE pointer to float type for reading temperature value.
@@ -1385,10 +1407,10 @@ LRESULT CMicroPCRDlg::OnmmTimer(WPARAM wParam, LPARAM lParam)
 		onceShow = false;
 		AfxMessageBox(L"Software error occured!\nPlease contact to developer");
 	}
-	else if( rx.currentError == ERROR_OVERHEAT ){
+	else if( rx.currentError == ERROR_OVERHEAT && onceShow ){
+		onceShow = false;
 		emergencyStop = true;
 		PCREndTask();
-		// 종료 처리
 	}
 
 	// Save the recording data.
