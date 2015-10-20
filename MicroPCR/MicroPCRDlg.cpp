@@ -67,6 +67,8 @@ CMicroPCRDlg::CMicroPCRDlg(CWnd* pParent /*=NULL*/)
 	, targetTempFlag(false)
 	, freeRunning(false)
 	, freeRunningCounter(0)
+	, m_cCompensation(0)
+	, emergencyStop(false)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -101,6 +103,8 @@ void CMicroPCRDlg::DoDataExchange(CDataExchange* pDX)
 	DDV_MinMaxInt(pDX, m_cGraphYMax, 0, 4096);
 	DDX_Text(pDX, IDC_EDIT_INTEGRAL_MAX, m_cIntegralMax);
 	DDV_MinMaxFloat(pDX, m_cIntegralMax, 0.0, 10000.0);
+	DDX_Text(pDX, IDC_EDIT_COMPENSATION, m_cCompensation);
+	DDV_MinMaxByte(pDX, m_cCompensation, 0, 200);
 }
 
 BEGIN_MESSAGE_MAP(CMicroPCRDlg, CDialog)
@@ -358,11 +362,11 @@ void CMicroPCRDlg::Serialize(CArchive& ar)
 	// Constants 값을 저장할 때 사용함.
 	if (ar.IsStoring())
 	{
-		ar << m_cMaxActions << m_cTimeOut << m_cArrivalDelta << m_cGraphYMin << m_cGraphYMax << m_cIntegralMax;
+		ar << m_cMaxActions << m_cTimeOut << m_cArrivalDelta << m_cGraphYMin << m_cGraphYMax << m_cIntegralMax << m_cCompensation;
 	}
 	else	// Constants 값을 파일로부터 불러올 때 사용한다.
 	{
-		ar >> m_cMaxActions >> m_cTimeOut >> m_cArrivalDelta >> m_cGraphYMin >> m_cGraphYMax >> m_cIntegralMax;
+		ar >> m_cMaxActions >> m_cTimeOut >> m_cArrivalDelta >> m_cGraphYMin >> m_cGraphYMax >> m_cIntegralMax >> m_cCompensation;
 
 		UpdateData(FALSE);
 	}
@@ -1211,14 +1215,19 @@ void CMicroPCRDlg::PCREndTask()
 
 	SetDlgItemText(IDC_BUTTON_PCR_START, L"PCR Start");
 
-	if( isCompletePCR )
-		AfxMessageBox(L"PCR ended!!");
+	if( !emergencyStop ){
+		if( isCompletePCR )
+			AfxMessageBox(L"PCR ended!!");
+		else
+			AfxMessageBox(L"PCR incomplete!!");
+	}
 	else
-		AfxMessageBox(L"PCR incomplete!!");
+		AfxMessageBox(L"Emergency stop!(overheating)");
 
 	GetDlgItem(IDC_BUTTON_PCR_OPEN)->EnableWindow(TRUE);
 	GetDlgItem(IDC_BUTTON_FAN_CONTROL)->EnableWindow(TRUE);
 
+	emergencyStop = false;
 	isCompletePCR = false;
 }
 
@@ -1280,6 +1289,7 @@ LRESULT CMicroPCRDlg::OnmmTimer(WPARAM wParam, LPARAM lParam)
 	tx.led_r = ledControl_r;
 	tx.led_g = ledControl_g;
 	tx.led_b = ledControl_b;
+	tx.compensation = m_cCompensation;
 
 	// pid 값을 buffer 에 복사한다.
 	
@@ -1304,8 +1314,11 @@ LRESULT CMicroPCRDlg::OnmmTimer(WPARAM wParam, LPARAM lParam)
 	// Change the currentCmd to Ready after sending once except READY, RUN.
 	if( currentCmd == CMD_FAN_OFF )
 		currentCmd = CMD_READY;
-	else if( currentCmd == CMD_PCR_STOP )
-		currentCmd = CMD_READY;
+	else if( currentCmd == CMD_PCR_STOP ){
+		if( rx.state == STATE_READY ){
+			currentCmd = CMD_READY;
+		}
+	}
 
 	// 기기로부터 받은 온도 값을 받아와서 저장함.
 	// convert BYTE pointer to float type for reading temperature value.
@@ -1371,6 +1384,11 @@ LRESULT CMicroPCRDlg::OnmmTimer(WPARAM wParam, LPARAM lParam)
 	if( rx.currentError == ERROR_ASSERT && onceShow ){
 		onceShow = false;
 		AfxMessageBox(L"Software error occured!\nPlease contact to developer");
+	}
+	else if( rx.currentError == ERROR_OVERHEAT ){
+		emergencyStop = true;
+		PCREndTask();
+		// 종료 처리
 	}
 
 	// Save the recording data.

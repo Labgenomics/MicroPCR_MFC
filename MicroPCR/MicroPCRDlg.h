@@ -116,6 +116,8 @@ private:
 	bool freeRunning;
 	int freeRunningCounter;
 
+	bool emergencyStop;
+
 // 생성입니다.
 public:
 	CMicroPCRDlg(CWnd* pParent = NULL);	// 표준 생성자입니다.
@@ -156,4 +158,5 @@ public:
 	afx_msg void OnBnClickedCheckTempGraph();
 	afx_msg void OnMoving(UINT fwSide, LPRECT pRect);
 	afx_msg void OnSize(UINT nType, int cx, int cy);
+	BYTE m_cCompensation;
 };

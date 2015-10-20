@@ -166,13 +166,16 @@ typedef struct _TxBuffer
 	BYTE led_g;
 	BYTE led_b;
 
-	BYTE reserved_for_64byte[39];
+	BYTE compensation;
+
+	BYTE reserved_for_64byte[38];
 } TxBuffer;
 
 typedef enum _ERROR
 {
 	ERROR_NO = 0x00,
 	ERROR_ASSERT,
+	ERROR_OVERHEAT,
 } Error;
 
 #define BACKGROUND_COLOR		RGB(2,130,200)
