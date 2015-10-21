@@ -799,34 +799,47 @@ void CMicroPCRDlg::OnBnClickedButtonPcrStart()
 
 	if( !isStarted )
 	{
-		initValues();
+		CString message = L"";
 
-		isStarted = true;
+		for (int row = 1; row < m_cPidTable.GetRowCount(); row++) {
+			CString startTemp = m_cPidTable.GetItemText(row, 1);
+			CString targetTemp = m_cPidTable.GetItemText(row, 2);
+			CString kp = m_cPidTable.GetItemText(row, 3);
+			CString kd = m_cPidTable.GetItemText(row, 4);
+			CString ki = m_cPidTable.GetItemText(row, 5);
 
-		KillTimer(1);
+			message += L"temp(" + startTemp + L"->" + targetTemp + L"), pid = " + kp + L"," + ki + L"," + kd + L"\n";
+		}
 
-		GetDlgItem(IDC_BUTTON_FAN_CONTROL)->EnableWindow(FALSE);
-		GetDlgItem(IDC_BUTTON_PCR_OPEN)->EnableWindow(FALSE);
-		SetDlgItemText(IDC_BUTTON_PCR_START, L"PCR Stop");
+		message.Format(L"%s\nCompensation : %d 으로 PCR을 시작할까요?", message, m_cCompensation);
+		
+		if( MessageBox(message, L"PCR Parameter Check", MB_YESNO ) == IDYES ){
 
-		currentCmd = CMD_PCR_RUN;
+			initValues();
 
-		m_prevTargetTemp = 25;
-		m_currentTargetTemp = (BYTE)actions[0].Temp;
-		findPID();
+			isStarted = true;
 
-		if( !isRecording )
-			OnBnClickedButtonPcrRecord();
+			GetDlgItem(IDC_BUTTON_FAN_CONTROL)->EnableWindow(FALSE);
+			GetDlgItem(IDC_BUTTON_PCR_OPEN)->EnableWindow(FALSE);
+			SetDlgItemText(IDC_BUTTON_PCR_START, L"PCR Stop");
 
-		m_startTime = timeGetTime();
+			currentCmd = CMD_PCR_RUN;
 
-		isFirstDraw = false;
-		clearSensorValue();
+			m_prevTargetTemp = 25;
+			m_currentTargetTemp = (BYTE)actions[0].Temp;
+			findPID();
 
-		// Log 파일을 사용하기 위한 폴더 생성
-		CreateDirectory(L"./Log/", NULL);
+			if( !isRecording )
+				OnBnClickedButtonPcrRecord();
 
-		SetTimer(1, TIMER_DURATION, NULL);
+			m_startTime = timeGetTime();
+
+			isFirstDraw = false;
+			clearSensorValue();
+
+			// Log 파일을 사용하기 위한 폴더 생성
+			CreateDirectory(L"./Log/", NULL);
+		}
 	}
 	else
 	{
@@ -1338,10 +1351,6 @@ LRESULT CMicroPCRDlg::OnmmTimer(WPARAM wParam, LPARAM lParam)
 
 	memcpy(readdata, &rx, sizeof(RxBuffer));
 
-	// Change the currentCmd to Ready after sending once except READY, RUN.
-	if( currentCmd == CMD_FAN_OFF )
-		currentCmd = CMD_READY;
-
 	// 기기로부터 받은 온도 값을 받아와서 저장함.
 	// convert BYTE pointer to float type for reading temperature value.
 	memcpy(&currentTemp, &(rx.chamber_temp_1), sizeof(float));
@@ -1349,6 +1358,10 @@ LRESULT CMicroPCRDlg::OnmmTimer(WPARAM wParam, LPARAM lParam)
 	// 기기로부터 받은 Photodiode 값을 받아와서 저장함.
 	photodiode_h = rx.photodiode_h;
 	photodiode_l = rx.photodiode_l;
+
+	if( currentCmd == CMD_FAN_OFF ){
+		currentCmd = CMD_READY;
+	}
 
 	if( currentTemp < 0.0 )
 		return FALSE;
@@ -1453,8 +1466,8 @@ LRESULT CMicroPCRDlg::OnmmTimer(WPARAM wParam, LPARAM lParam)
 				totalTime.Format(L"%dm %ds", min, sec);
 
 			CString log;
-			log.Format(L"cmd: %d, targetTemp: %3.1f, temp: %s, elapsed time: %s, line Time: %s, protocol Time: %s, device TargetArr: %d, mfc TargetArr: %d, free Running: %d, free Running Counter: %d, ArrivalDelta: %3.1f, tempFlag: %d\n", 
-				currentCmd, m_currentTargetTemp, tempStr, elapseTime, lineTime, totalTime, (int)rx.targetArrival, (int)isTargetArrival, (int)freeRunning, (int)freeRunningCounter, m_cArrivalDelta, (int)targetTempFlag);
+			log.Format(L"cmd: %d, targetTemp: %3.1f, temp: %s, elapsed time: %s, line Time: %s, protocol Time: %s, device TargetArr: %d, mfc TargetArr: %d, free Running: %d, free Running Counter: %d, ArrivalDelta: %3.1f, tempFlag: %d, photodiode: %3.1f\n", 
+				currentCmd, m_currentTargetTemp, tempStr, elapseTime, lineTime, totalTime, (int)rx.targetArrival, (int)isTargetArrival, (int)freeRunning, (int)freeRunningCounter, m_cArrivalDelta, (int)targetTempFlag, lights);
 			FileManager::log(log);
 		}
 	}
