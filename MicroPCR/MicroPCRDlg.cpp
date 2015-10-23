@@ -1439,6 +1439,9 @@ LRESULT CMicroPCRDlg::OnmmTimer(WPARAM wParam, LPARAM lParam)
 		out.Format(L"%6d	%8.0f	%3.1f\n", m_cycleCount2, (double)(timeGetTime()-m_recStartTime), lights);
 		m_recPDFile2.WriteString(out);
 
+		out.Format(L"%3.1f", lights);
+		SetDlgItemText(IDC_EDIT_PHOTODIODE, out);
+
 		// for log message per 1 sec
 		if( m_recordingCount % 20 == 0 ){
 			int elapsed_time = (int)((double)(timeGetTime()-m_startTime)/1000.);

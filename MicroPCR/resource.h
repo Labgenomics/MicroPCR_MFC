@@ -67,8 +67,9 @@
 #define IDC_EDIT_SAVE_LABEL             1036
 #define IDC_STATIC_SAVE_LABEL           1037
 #define IDC_CHECK_TEMP_GRAPH            1039
-#define IDC_EDIT2                       1040
 #define IDC_EDIT_COMPENSATION           1040
+#define IDC_EDIT2                       1041
+#define IDC_EDIT_PHOTODIODE             1041
 
 // Next default values for new objects
 // 
@@ -76,7 +77,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        139
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1041
+#define _APS_NEXT_CONTROL_VALUE         1042
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif
