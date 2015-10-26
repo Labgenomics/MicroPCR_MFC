@@ -1277,6 +1277,7 @@ void CMicroPCRDlg::PCREndTask()
 
 void CMicroPCRDlg::initValues()
 {
+	currentCmd = CMD_READY;
 	m_currentActionNumber = -1;
 	m_nLeftSec = 0;
 	m_nLeftTotalSec = 0;
@@ -1426,21 +1427,22 @@ LRESULT CMicroPCRDlg::OnmmTimer(WPARAM wParam, LPARAM lParam)
 		PCREndTask();
 	}
 
+	CString out;
+	double lights = (double)(photodiode_h & 0x0f)*255. + (double)(photodiode_l);
+	
+	out.Format(L"%3.1f %d %d", lights, currentCmd, rx.state);
+	SetDlgItemText(IDC_EDIT_PHOTODIODE, out);
+
 	// Save the recording data.
 	if( isRecording )
 	{
 		m_recordingCount++;
-		CString out;
 		out.Format(L"%6d	%8.0f	%3.1f\n", m_recordingCount, (double)(timeGetTime()-m_recStartTime), currentTemp);
 		m_recFile.WriteString(out);
 
-		double lights = (double)(photodiode_h & 0x0f)*255. + (double)(photodiode_l);
 		m_cycleCount2++;
 		out.Format(L"%6d	%8.0f	%3.1f\n", m_cycleCount2, (double)(timeGetTime()-m_recStartTime), lights);
 		m_recPDFile2.WriteString(out);
-
-		out.Format(L"%3.1f", lights);
-		SetDlgItemText(IDC_EDIT_PHOTODIODE, out);
 
 		// for log message per 1 sec
 		if( m_recordingCount % 20 == 0 ){
