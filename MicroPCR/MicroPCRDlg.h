@@ -159,4 +159,13 @@ public:
 	afx_msg void OnMoving(UINT fwSide, LPRECT pRect);
 	afx_msg void OnSize(UINT nType, int cx, int cy);
 	BYTE m_cCompensation;
+	BYTE m_cWG_PWM;
+	BYTE m_cRed_PWM;
+	BYTE m_cGreen_PWM;
+	BYTE m_cBlue_PWM;
+	afx_msg void OnBnClickedButtonPwmApply();
+	afx_msg void OnBnClickedCheckPwmUiHold();
+	bool uiHoldFlag;
+	CSliderCtrl m_SliderBlue;
+	afx_msg void OnNMReleasedcaptureSliderBlue(NMHDR *pNMHDR, LRESULT *pResult);
 };

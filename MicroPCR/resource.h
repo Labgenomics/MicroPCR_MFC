@@ -29,6 +29,7 @@
 #define IDC_EDIT_LEFT_PROTOCOL_TIME     1014
 #define IDC_EDIT_ELAPSED_TIME           1015
 #define IDC_STATIC_PID_DEBUG            1016
+#define IDC_BUTTON_PWM_APPLY            1016
 #define IDC_EDIT_GRAPH_Y_MIN            1017
 #define IDC_EDIT_Y_MAX                  1018
 #define IDC_BUTTON1                     1019
@@ -70,6 +71,13 @@
 #define IDC_EDIT_COMPENSATION           1040
 #define IDC_EDIT2                       1041
 #define IDC_EDIT_PHOTODIODE             1041
+#define IDC_EDIT_WG_PWM                 1042
+#define IDC_CHECK_PWM_UI_HOLD           1043
+#define IDC_EDIT_RED_PWM                1044
+#define IDC_EDIT_GREEN_PWM              1045
+#define IDC_SLIDER1                     1046
+#define IDC_SLIDER_BLUE                 1046
+#define IDC_EDIT_BLUE_PWM               1047
 
 // Next default values for new objects
 // 
@@ -77,7 +85,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        139
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1042
+#define _APS_NEXT_CONTROL_VALUE         1047
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

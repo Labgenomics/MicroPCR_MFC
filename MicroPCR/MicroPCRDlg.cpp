@@ -69,6 +69,11 @@ CMicroPCRDlg::CMicroPCRDlg(CWnd* pParent /*=NULL*/)
 	, freeRunningCounter(0)
 	, m_cCompensation(0)
 	, emergencyStop(false)
+	, m_cWG_PWM(0)
+	, m_cRed_PWM(0)
+	, m_cGreen_PWM(0)
+	, m_cBlue_PWM(0)
+	, uiHoldFlag(true)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -105,6 +110,14 @@ void CMicroPCRDlg::DoDataExchange(CDataExchange* pDX)
 	DDV_MinMaxFloat(pDX, m_cIntegralMax, 0.0, 10000.0);
 	DDX_Text(pDX, IDC_EDIT_COMPENSATION, m_cCompensation);
 	DDV_MinMaxByte(pDX, m_cCompensation, 0, 200);
+	DDX_Text(pDX, IDC_EDIT_WG_PWM, m_cWG_PWM);
+	DDV_MinMaxByte(pDX, m_cWG_PWM, 0, 255);
+	DDX_Text(pDX, IDC_EDIT_RED_PWM, m_cRed_PWM);
+	DDV_MinMaxByte(pDX, m_cRed_PWM, 0, 255);
+	DDX_Text(pDX, IDC_EDIT_GREEN_PWM, m_cGreen_PWM);
+	DDV_MinMaxByte(pDX, m_cGreen_PWM, 0, 255);
+	DDX_Text(pDX, IDC_EDIT_BLUE_PWM, m_cBlue_PWM);
+	DDV_MinMaxByte(pDX, m_cBlue_PWM, 0, 255);
 }
 
 BEGIN_MESSAGE_MAP(CMicroPCRDlg, CDialog)
@@ -126,6 +139,8 @@ BEGIN_MESSAGE_MAP(CMicroPCRDlg, CDialog)
 	ON_BN_CLICKED(IDC_CHECK_TEMP_GRAPH, &CMicroPCRDlg::OnBnClickedCheckTempGraph)
 	ON_WM_MOVING()
 	ON_WM_SIZE()
+	ON_BN_CLICKED(IDC_BUTTON_PWM_APPLY, &CMicroPCRDlg::OnBnClickedButtonPwmApply)
+	ON_BN_CLICKED(IDC_CHECK_PWM_UI_HOLD, &CMicroPCRDlg::OnBnClickedCheckPwmUiHold)
 END_MESSAGE_MAP()
 
 
@@ -362,11 +377,11 @@ void CMicroPCRDlg::Serialize(CArchive& ar)
 	// Constants 값을 저장할 때 사용함.
 	if (ar.IsStoring())
 	{
-		ar << m_cMaxActions << m_cTimeOut << m_cArrivalDelta << m_cGraphYMin << m_cGraphYMax << m_cIntegralMax << m_cCompensation;
+		ar << m_cMaxActions << m_cTimeOut << m_cArrivalDelta << m_cGraphYMin << m_cGraphYMax << m_cIntegralMax << m_cCompensation << m_cWG_PWM << m_cRed_PWM << m_cGreen_PWM << m_cBlue_PWM;
 	}
 	else	// Constants 값을 파일로부터 불러올 때 사용한다.
 	{
-		ar >> m_cMaxActions >> m_cTimeOut >> m_cArrivalDelta >> m_cGraphYMin >> m_cGraphYMax >> m_cIntegralMax >> m_cCompensation;
+		ar >> m_cMaxActions >> m_cTimeOut >> m_cArrivalDelta >> m_cGraphYMin >> m_cGraphYMax >> m_cIntegralMax >> m_cCompensation >> m_cWG_PWM >> m_cRed_PWM >> m_cGreen_PWM >> m_cBlue_PWM;
 
 		UpdateData(FALSE);
 	}
@@ -758,13 +773,14 @@ void CMicroPCRDlg::OnBnClickedButtonGraphview()
 
 void CMicroPCRDlg::OnBnClickedButtonConstantsApply()
 {
-	if( !UpdateData() )
-		return;
+	if(!UpdateData()) return;
 
-	if( !pids.empty() ){
+	if(!pids.empty())
+	{
 		pids.clear();
 	
-		for (int row = 1; row < m_cPidTable.GetRowCount(); row++) {
+		for (int row = 1; row < m_cPidTable.GetRowCount(); row++)
+		{
 			CString startTemp = m_cPidTable.GetItemText(row, 1);
 			CString targetTemp = m_cPidTable.GetItemText(row, 2);
 			CString kp = m_cPidTable.GetItemText(row, 3);
@@ -1331,6 +1347,10 @@ LRESULT CMicroPCRDlg::OnmmTimer(WPARAM wParam, LPARAM lParam)
 	tx.led_g = ledControl_g;
 	tx.led_b = ledControl_b;
 	tx.compensation = m_cCompensation;
+	tx.led_wg_pwm = m_cWG_PWM;
+	tx.led_r_pwm = m_cRed_PWM;
+	tx.led_g_pwm = m_cGreen_PWM;
+	tx.led_b_pwm = m_cBlue_PWM;
 
 	// pid 값을 buffer 에 복사한다.
 	
@@ -1405,11 +1425,11 @@ LRESULT CMicroPCRDlg::OnmmTimer(WPARAM wParam, LPARAM lParam)
 
 	// 현재 사용중인 PID 값을 보여준다.
 	CString pidstr;
-	pidstr.Format(L"%.1f", m_kp);
+	pidstr.Format(L"%.4f", m_kp);
 	SetDlgItemText(IDC_EDIT_CURRENT_P, pidstr);
 	pidstr.Format(L"%.4f", m_ki);
 	SetDlgItemText(IDC_EDIT_CURRENT_I, pidstr);
-	pidstr.Format(L"%.1f", m_kd);
+	pidstr.Format(L"%.4f", m_kd);
 	SetDlgItemText(IDC_EDIT_CURRENT_D, pidstr);
 
 	if( isTempGraphOn && isStarted )
@@ -1561,4 +1581,28 @@ void CMicroPCRDlg::OnSize(UINT nType, int cx, int cy)
 		tempGraphDlg.SetWindowPos(this, parent_rect.right+10, parent_rect.top, 
 			rect.Width(), rect.Height(),  SWP_SHOWWINDOW|SWP_NOSIZE|SWP_NOZORDER|SWP_FRAMECHANGED);
 	}
+}
+
+void CMicroPCRDlg::OnBnClickedButtonPwmApply()
+{
+	if(!UpdateData()) return;
+
+	// PID 값을 제외한 나머지 Constants 들을 저장한다.
+	saveConstants();
+}
+
+void CMicroPCRDlg::OnBnClickedCheckPwmUiHold()
+{
+	uiHoldFlag = !uiHoldFlag;
+	
+	GetDlgItem(IDC_BUTTON_PWM_APPLY)->EnableWindow(uiHoldFlag);
+	GetDlgItem(IDC_EDIT_WG_PWM)->EnableWindow(uiHoldFlag);
+	GetDlgItem(IDC_EDIT_RED_PWM)->EnableWindow(uiHoldFlag);
+	GetDlgItem(IDC_EDIT_GREEN_PWM)->EnableWindow(uiHoldFlag);
+	GetDlgItem(IDC_EDIT_BLUE_PWM)->EnableWindow(uiHoldFlag);
+
+	if(uiHoldFlag)
+		SetDlgItemText(IDC_CHECK_PWM_UI_HOLD, L"Locking");
+	else
+		SetDlgItemText(IDC_CHECK_PWM_UI_HOLD, L"Unlocking");
 }
