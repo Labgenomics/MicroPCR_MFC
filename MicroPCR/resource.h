@@ -51,8 +51,11 @@
 #define IDC_EDIT_CURRENT_P              1023
 #define IDC_EDIT_CURRENT_I              1024
 #define IDC_EDIT_CURRENT_D              1025
+#define IDC_EDIT_GRAPH_X_VAL            1026
 #define IDC_CUSTOM_PID_TABLE2           1027
 #define IDC_LIST_PID                    1028
+#define IDC_EDIT_ARRIVAL_DELTA2         1028
+#define IDC_EDIT_CAPTURE_TEMPERATURE    1028
 #define IDC_EDIT_PID_START_TEMP         1029
 #define IDC_EDIT_PID_TARGET_TEMP2       1030
 #define IDC_EDIT_PID_TARGET_TEMP3       1031

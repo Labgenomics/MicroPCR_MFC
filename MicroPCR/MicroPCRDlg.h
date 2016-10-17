@@ -168,4 +168,6 @@ public:
 	bool uiHoldFlag;
 	CSliderCtrl m_SliderBlue;
 	afx_msg void OnNMReleasedcaptureSliderBlue(NMHDR *pNMHDR, LRESULT *pResult);
+	int m_cGraphXVal;
+	int m_cCaptureTemper;
 };
