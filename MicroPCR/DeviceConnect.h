@@ -20,21 +20,23 @@ private:
 	// HWND Handle for control Dlg
 	HWND m_hDlg;
 
-	// For Related Connection functions ( private )
-private:
-	// Open Device specific vid, pid by serial
-	BOOL OpenDevice(int Vid = LS4550EK_VID, int Pid = LS4550EK_PID, char* Serial = NULL, BOOL IsBlock = TRUE);
-
 	// For Related Connection functions ( public )
 public:
+	BOOL OpenDevice(int Vid = LS4550EK_VID, int Pid = LS4550EK_PID, char* Serial = NULL, BOOL IsBlock = TRUE);
 	// Check Devices & return Device Counts
 	int GetDevices(int Vid = LS4550EK_VID, int Pid = LS4550EK_PID, int Max = DEVICE_MAX);
 	// If ConnectDevice Events actived, Called this function
 	BOOL CheckDevice(void);
+	void CloseDevice(void);
 	// Read buffer from Device & return read count
 	int Read(void *Buffer);
 	// Write buffer to Device & return write count
 	int Write(void *Buffer);
+
+	// Get device information
+	CString GetDeviceSerial(int idx);
+	char * GetDeviceSerialForConnection(int idx);
+	BOOL checkDeviceStillAlive(CString serialNumber);
 };
 
 

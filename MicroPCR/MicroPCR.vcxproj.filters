@@ -1,0 +1,270 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="소스 파일">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="소스 파일\GridControl">
+      <UniqueIdentifier>{f514fbef-2785-4d42-86c6-2f169c0539b1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\CPlot">
+      <UniqueIdentifier>{ecdf4440-3d96-409a-bb49-5fb47a605b78}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\GraphControl">
+      <UniqueIdentifier>{9dead6ed-9273-4aff-a73e-be6811c77c08}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="헤더 파일\GridControl">
+      <UniqueIdentifier>{8ef27bdb-1469-4e49-893e-a3460a9ff446}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\CPlot">
+      <UniqueIdentifier>{f27a0536-a325-41b6-b4c1-19b8195258cd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\GrahControl">
+      <UniqueIdentifier>{89991f75-d312-45ae-8ef3-77a4be5a4c97}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="리소스 파일">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="ConvertTool.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="DeviceConnect.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="FileManager.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="MicroPCR.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="MicroPCRDlg.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="mmTimers.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="PIDCreateDlg.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="PIDManagerDlg.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="SaveDlg.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="TempGraphDlg.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="GridCtrl_src\GridCell.cpp">
+      <Filter>소스 파일\GridControl</Filter>
+    </ClCompile>
+    <ClCompile Include="GridCtrl_src\GridCellBase.cpp">
+      <Filter>소스 파일\GridControl</Filter>
+    </ClCompile>
+    <ClCompile Include="GridCtrl_src\GridCtrl.cpp">
+      <Filter>소스 파일\GridControl</Filter>
+    </ClCompile>
+    <ClCompile Include="GridCtrl_src\GridDropTarget.cpp">
+      <Filter>소스 파일\GridControl</Filter>
+    </ClCompile>
+    <ClCompile Include="GridCtrl_src\InPlaceEdit.cpp">
+      <Filter>소스 파일\GridControl</Filter>
+    </ClCompile>
+    <ClCompile Include="GridCtrl_src\TitleTip.cpp">
+      <Filter>소스 파일\GridControl</Filter>
+    </ClCompile>
+    <ClCompile Include="CPlot Sources\Axis.cpp">
+      <Filter>소스 파일\CPlot</Filter>
+    </ClCompile>
+    <ClCompile Include="CPlot Sources\AxisSettings.cpp">
+      <Filter>소스 파일\CPlot</Filter>
+    </ClCompile>
+    <ClCompile Include="CPlot Sources\Chart.cpp">
+      <Filter>소스 파일\CPlot</Filter>
+    </ClCompile>
+    <ClCompile Include="CPlot Sources\ChartData.cpp">
+      <Filter>소스 파일\CPlot</Filter>
+    </ClCompile>
+    <ClCompile Include="CPlot Sources\ColorControl.cpp">
+      <Filter>소스 파일\CPlot</Filter>
+    </ClCompile>
+    <ClCompile Include="CPlot Sources\CPlotUtility.cpp">
+      <Filter>소스 파일\CPlot</Filter>
+    </ClCompile>
+    <ClCompile Include="CPlot Sources\DataSettingsDialog.cpp">
+      <Filter>소스 파일\CPlot</Filter>
+    </ClCompile>
+    <ClCompile Include="CPlot Sources\ImageChart.cpp">
+      <Filter>소스 파일\CPlot</Filter>
+    </ClCompile>
+    <ClCompile Include="CPlot Sources\ImagePalette.cpp">
+      <Filter>소스 파일\CPlot</Filter>
+    </ClCompile>
+    <ClCompile Include="CPlot Sources\ImagePlotSettingsDialog.cpp">
+      <Filter>소스 파일\CPlot</Filter>
+    </ClCompile>
+    <ClCompile Include="CPlot Sources\PlotSettingsDialog.cpp">
+      <Filter>소스 파일\CPlot</Filter>
+    </ClCompile>
+    <ClCompile Include="CPlot Sources\XYChart.cpp">
+      <Filter>소스 파일\CPlot</Filter>
+    </ClCompile>
+    <ClCompile Include="GraphControl\GraphCtrl.cpp">
+      <Filter>소스 파일\GraphControl</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ConvertTool.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="DeviceConnect.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="FileManager.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="MicroPCR.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="MicroPCRDlg.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="mmTimers.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="PIDCreateDlg.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="PIDManagerDlg.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="SaveDlg.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="TempGraphDlg.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="UserDefs.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="GridCtrl_src\CellRange.h">
+      <Filter>헤더 파일\GridControl</Filter>
+    </ClInclude>
+    <ClInclude Include="GridCtrl_src\GridCell.h">
+      <Filter>헤더 파일\GridControl</Filter>
+    </ClInclude>
+    <ClInclude Include="GridCtrl_src\GridCellBase.h">
+      <Filter>헤더 파일\GridControl</Filter>
+    </ClInclude>
+    <ClInclude Include="GridCtrl_src\GridCtrl.h">
+      <Filter>헤더 파일\GridControl</Filter>
+    </ClInclude>
+    <ClInclude Include="GridCtrl_src\GridDropTarget.h">
+      <Filter>헤더 파일\GridControl</Filter>
+    </ClInclude>
+    <ClInclude Include="GridCtrl_src\InPlaceEdit.h">
+      <Filter>헤더 파일\GridControl</Filter>
+    </ClInclude>
+    <ClInclude Include="GridCtrl_src\MemoryDC.h">
+      <Filter>헤더 파일\GridControl</Filter>
+    </ClInclude>
+    <ClInclude Include="GridCtrl_src\TitleTip.h">
+      <Filter>헤더 파일\GridControl</Filter>
+    </ClInclude>
+    <ClInclude Include="CPlot Sources\Axis.h">
+      <Filter>헤더 파일\CPlot</Filter>
+    </ClInclude>
+    <ClInclude Include="CPlot Sources\AxisSettings.h">
+      <Filter>헤더 파일\CPlot</Filter>
+    </ClInclude>
+    <ClInclude Include="CPlot Sources\Chart.h">
+      <Filter>헤더 파일\CPlot</Filter>
+    </ClInclude>
+    <ClInclude Include="CPlot Sources\ChartData.h">
+      <Filter>헤더 파일\CPlot</Filter>
+    </ClInclude>
+    <ClInclude Include="CPlot Sources\ColorControl.h">
+      <Filter>헤더 파일\CPlot</Filter>
+    </ClInclude>
+    <ClInclude Include="CPlot Sources\ColorTables.h">
+      <Filter>헤더 파일\CPlot</Filter>
+    </ClInclude>
+    <ClInclude Include="CPlot Sources\CPlotResource.h">
+      <Filter>헤더 파일\CPlot</Filter>
+    </ClInclude>
+    <ClInclude Include="CPlot Sources\CPlotUtility.h">
+      <Filter>헤더 파일\CPlot</Filter>
+    </ClInclude>
+    <ClInclude Include="CPlot Sources\DataSettingsDialog.h">
+      <Filter>헤더 파일\CPlot</Filter>
+    </ClInclude>
+    <ClInclude Include="CPlot Sources\ImagePalette.h">
+      <Filter>헤더 파일\CPlot</Filter>
+    </ClInclude>
+    <ClInclude Include="CPlot Sources\ImagePlotSettingsDialog.h">
+      <Filter>헤더 파일\CPlot</Filter>
+    </ClInclude>
+    <ClInclude Include="CPlot Sources\PlotSettingsDialog.h">
+      <Filter>헤더 파일\CPlot</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphControl\GraphCtrl.h">
+      <Filter>헤더 파일\GrahControl</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="res\bitmap1.bmp">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="res\MicroPCR.ico">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="res\rec.bmp">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="res\rec1.bmp">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="res\rec_not_work.bmp">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="res\rec_work.bmp">
+      <Filter>리소스 파일</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="CPlot Sources\CPlotResources.rc">
+      <Filter>리소스 파일</Filter>
+    </ResourceCompile>
+    <ResourceCompile Include="MicroPCR.rc">
+      <Filter>리소스 파일</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="res\MicroPCR.rc2">
+      <Filter>리소스 파일</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="ReadMe.txt" />
+  </ItemGroup>
+</Project>

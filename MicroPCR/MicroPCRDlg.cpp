@@ -76,6 +76,7 @@ CMicroPCRDlg::CMicroPCRDlg(CWnd* pParent /*=NULL*/)
 	, uiHoldFlag(true)
 	, m_cGraphXVal(40)
 	, m_cCaptureTemper(72)
+	, selectedDeviceSerial(L"")
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -122,6 +123,8 @@ void CMicroPCRDlg::DoDataExchange(CDataExchange* pDX)
 	DDV_MinMaxByte(pDX, m_cBlue_PWM, 0, 255);
 	DDX_Text(pDX, IDC_EDIT_GRAPH_X_VAL, m_cGraphXVal);
 	DDX_Text(pDX, IDC_EDIT_CAPTURE_TEMPERATURE, m_cCaptureTemper);
+	DDV_MinMaxInt(pDX, m_cCaptureTemper, 4, 104);
+	DDX_Control(pDX, IDC_COMBO_USB_DEVICES, m_cUsbList);
 }
 
 BEGIN_MESSAGE_MAP(CMicroPCRDlg, CDialog)
@@ -145,6 +148,7 @@ BEGIN_MESSAGE_MAP(CMicroPCRDlg, CDialog)
 	ON_WM_SIZE()
 	ON_BN_CLICKED(IDC_BUTTON_PWM_APPLY, &CMicroPCRDlg::OnBnClickedButtonPwmApply)
 	ON_BN_CLICKED(IDC_CHECK_PWM_UI_HOLD, &CMicroPCRDlg::OnBnClickedCheckPwmUiHold)
+	ON_CBN_SELENDOK(IDC_COMBO_USB_DEVICES, &CMicroPCRDlg::OnCbnSelendokComboUsbDevices)
 END_MESSAGE_MAP()
 
 
@@ -234,12 +238,16 @@ BOOL CMicroPCRDlg::OnInitDialog()
 	axis->SetTitle(L"Sensor Value");
 	axis->SetRange(m_cGraphYMin, m_cGraphYMax);
 
-	sensorValues.push_back( 1.0 );
+	sensorDrawingValues.push_back( 1.0 );
 
 	device = new CDeviceConnect( GetSafeHwnd() );
 	m_Timer = new CMMTimers(1, GetSafeHwnd());
 
+	SetDlgItemText(IDC_EDIT_DEVICE_STATUS, L"Disconnected");
+
 	// 연결 시도
+	// 180630 YJ, don't connect this time
+	/*
 	BOOL status = device->CheckDevice();
 
 	if( status )
@@ -262,7 +270,15 @@ BOOL CMicroPCRDlg::OnInitDialog()
 		SetDlgItemText(IDC_EDIT_DEVICE_STATUS, L"Disconnected");
 		isConnected = false;
 	}
+	*/
+	
+	int deviceNums = device->GetDevices();
 
+	m_cUsbList.SetCurSel(0);
+	for (int i = 0; i < deviceNums; ++i){
+		m_cUsbList.InsertString(i + 1, device->GetDeviceSerial(i));
+	}
+	
 	enableWindows();
 
 	return TRUE;  // 포커스를 컨트롤에 설정하지 않으면 TRUE를 반환합니다.
@@ -297,7 +313,7 @@ void CMicroPCRDlg::OnPaint()
 
 		int oldMode = dc.SetMapMode( MM_LOMETRIC );
 
-		graphRect.SetRect( 15, 350, 570, 760 );
+		graphRect.SetRect( 15, 370, 570, 760 );
 		
 		dc.DPtoLP( (LPPOINT)&graphRect, 2 );
 
@@ -325,38 +341,58 @@ LRESULT CMicroPCRDlg::SetSerial(WPARAM wParam, LPARAM lParam)
 
 BOOL CMicroPCRDlg::OnDeviceChange(UINT nEventType, DWORD dwData)
 {
-	// 연결 시도
-	BOOL status = device->CheckDevice();
+	int deviceNums = device->GetDevices();
 
-	if( status )
-	{
-		// 중복 connection 막기
-		if( isConnected ) 
-			return TRUE;
+	CString temp;
+	temp.Format(L"%d\n", nEventType);
+	::OutputDebugString(temp);
 
-		SetDlgItemText(IDC_EDIT_DEVICE_STATUS, L"Connected");
+	// Check the connection state
+	if (isConnected){
+		// Check the current device still alive
+		BOOL check = device->checkDeviceStillAlive(selectedDeviceSerial);
 
-		isConnected = true;
+		int prevDeviceIdx = 0;
 
-		CString recentPath;
-		FileManager::loadRecentPath(FileManager::PROTOCOL_PATH, recentPath);
+		// Init the combo box
+		m_cUsbList.ResetContent();
+		m_cUsbList.AddString(L"Select device");
 
-		if( !recentPath.IsEmpty() )
-			readProtocol(recentPath);
-		else
-			AfxMessageBox(L"No Recent Protocol File! Please Read Protocol!");
+		// Re-arrange usb list
+		for (int i = 0; i < deviceNums; ++i){
+			m_cUsbList.InsertString(i + 1, device->GetDeviceSerial(i));
 
-		m_Timer->startTimer(TIMER_DURATION, FALSE);
+			if (device->GetDeviceSerial(i).Compare(selectedDeviceSerial) == 0){
+				prevDeviceIdx = i;
+			}
+		}
+
+		// Re-select previous device
+		if (check){
+			m_cUsbList.SetCurSel(prevDeviceIdx + 1);
+		}
+		else{
+			// Stop the device
+			SetDlgItemText(IDC_EDIT_DEVICE_STATUS, L"Disconnected");
+			isConnected = false;
+			m_Timer->stopTimer();
+
+			m_cUsbList.SetCurSel(0);
+			m_cUsbList.EnableWindow(TRUE);
+		}
+
+		enableWindows();
 	}
-	else
-	{
-		SetDlgItemText(IDC_EDIT_DEVICE_STATUS, L"Disconnected");
-		isConnected = false;
+	else{
+		// Init the combo box
+		m_cUsbList.ResetContent();
+		m_cUsbList.AddString(L"Select device");
 
-		m_Timer->stopTimer();
+		for (int i = 0; i < deviceNums; ++i){
+			m_cUsbList.InsertString(i + 1, device->GetDeviceSerial(i));
+		}
+		m_cUsbList.SetCurSel(0);
 	}
-
-	enableWindows();
 
 	return TRUE;
 }
@@ -1227,7 +1263,8 @@ void CMicroPCRDlg::timeTask()
 			m_nLeftSec == 1 )
 		{
 			double lights = (double)(photodiode_h & 0x0f)*255. + (double)(photodiode_l);
-			addSensorValue( lights );
+
+			addSensorValue(lights);
 
 			if( isRecording )
 			{
@@ -1237,6 +1274,181 @@ void CMicroPCRDlg::timeTask()
 				m_recPDFile.WriteString(out);
 			}
 		}
+	}
+}
+
+
+#define OFFSET_SIZE	14
+//	6 average gradient when A is 1.
+//							0	   0.1    0.2    0.3    0.4    0.5    0.6    0.7    0.8    0.9    1.0
+double gradientTable[11] = { 0.000, 0.025, 0.049, 0.070, 0.090, 0.106, 0.119, 0.130, 0.139, 0.146, 0.151 };
+
+// 180614 YJ sigmoid display
+void CMicroPCRDlg::sigmoidDisplay(){
+	// Copy previous all datas
+	vector<double> resultValues;
+
+	int size = sensorValues.size() - 1;
+
+	double minVal = 99999, maxVal = -99999;
+	int offsetSize = 0;
+	double offset = 0.0;
+
+	minVal = maxVal = sensorValues[0];
+	for (int i = 1; i < size + 1; ++i){
+		double val = sensorValues[i];
+
+		if (val < minVal){
+			minVal = val;
+		}
+		if (val > maxVal){
+			maxVal = val;
+		}
+	}
+
+	// Normalize
+	for (int i = 0; i < size + 1; ++i){
+		resultValues.push_back(sensorValues[i] - minVal);
+	}
+
+	// Append dummy data
+	resultValues.push_back(0.0);
+
+	// min, max range arrange
+	maxVal = maxVal - minVal;
+	minVal = 0;
+
+	// Calculate the average for offset
+	if (size > OFFSET_SIZE){
+		offsetSize = OFFSET_SIZE;
+	}
+	else{
+		offsetSize = size;
+	}
+
+	for (int i = 0; i < offsetSize + 1; ++i){
+		offset += resultValues[i];
+	}
+	offset /= offsetSize;
+
+	if (offset < 100){
+		double reverseOffset = 100.0 - offset;
+		for (int i = 0; i < size + 1; ++i){
+			resultValues[i] += reverseOffset;
+		}
+		offset = 100.0;
+		maxVal += reverseOffset;
+		minVal += reverseOffset;
+	}
+
+	// Calculate slope 
+	double slope = (resultValues[size] - resultValues[0]) / size;
+	double yRange = 1000.0;
+
+	// If slope is lower than 0, it must be linear equation.
+	if (slope < 0){
+		for (int i = 0; i < offsetSize + 1; ++i){
+			offset += resultValues[i];
+		}
+		offset /= OFFSET_SIZE;
+
+		for (int i = 0; i < size + 1; ++i){
+			resultValues[i] = slope * i + offset;
+		}
+	}
+	else{
+		double diff = maxVal - minVal;
+
+		// Check new Y range
+		if (diff < 500)
+			yRange = 1000;
+		else if (diff < 750)
+			yRange = maxVal * 2.0;
+		else if (diff < 1000)
+			yRange = maxVal * 1.5;
+		else
+			yRange = maxVal * 1.2;
+
+		if (yRange > 4096)
+			yRange = 4096;
+
+		// center value
+		double centerVal = ((maxVal - offset) / 2) + offset;
+
+		// A = diff - offset = diff - 100.0
+		double A = diff;
+		double C = offset;
+
+		// calculate D
+		// 중간값 centerV가 Sample[x14..x39]에서 위치하는 x의 값을 찾는다 => xC :: Sample(xC) <= centerV < Sample(xC+1)
+		int idx = 0;
+		if (size > OFFSET_SIZE){
+			idx = OFFSET_SIZE;
+		}
+
+		for (; idx < size + 1; ++idx){
+			if (centerVal < resultValues[idx]){
+				break;
+			}
+		}
+
+		idx--;	// current idx value is bigger than x, so decrease idx.
+
+		double xFr = 0.0;
+
+		// 소숫점을 보상한다. xCfr = (centerV - Sample(xC)) / (Sample(xC+1) - Sample(xC))
+		if (resultValues[idx + 1] - resultValues[idx] != 0.0){
+			xFr = (centerVal - resultValues[idx]) / (resultValues[idx + 1] - resultValues[idx]);
+		}
+
+		// D = xC + xCfr
+		double D = idx + xFr;
+
+		int diffxC = size - idx;
+		if (diffxC > 2){
+			diffxC = 3;
+		}
+
+		int findSlopeIdx = 0;
+		double diffSlope = 0.0, fractionSlope = 0.0, sampleSlope = 0.0;
+
+		if (idx - diffxC >= 0){
+			sampleSlope = (resultValues[idx + diffxC] - resultValues[idx - diffxC]) / (diffxC * 2);
+			if (sampleSlope < 0){
+				sampleSlope = slope;
+			}
+		}
+		else{
+			sampleSlope = DBL_MAX;;
+		}
+
+		for (idx = 1; idx < 11; ++idx){
+			if (sampleSlope < (gradientTable[idx] * A)){
+				diffSlope = sampleSlope - gradientTable[idx - 1] * A;
+				break;
+			}
+		}
+
+		findSlopeIdx = idx - 1;
+		fractionSlope = diffSlope / ((gradientTable[findSlopeIdx + 1] - gradientTable[findSlopeIdx]) * A);
+
+		double B = (findSlopeIdx + fractionSlope) / 10;
+
+		for (int i = 0; i < size + 1; ++i){
+			resultValues[i] = A / (1 + exp(-B * (i - D))) + C;
+		}
+	}
+
+	// Set new Y range
+	CAxis *axis = m_Chart.GetAxisByLocation(kLocationLeft);
+	axis->SetRange(0, yRange);
+	// Clear previous drawing data and initialize the chart data
+	sensorDrawingValues.clear();
+	sensorDrawingValues.push_back(1.0);
+
+	// Copy with new data
+	for (int i = 0; i < resultValues.size()-1; ++i){
+		sensorDrawingValues.push_back(resultValues[i]);
 	}
 }
 
@@ -1360,6 +1572,12 @@ LRESULT CMicroPCRDlg::OnmmTimer(WPARAM wParam, LPARAM lParam)
 	tx.led_g_pwm = m_cGreen_PWM;
 	tx.led_b_pwm = m_cBlue_PWM;
 
+	/*
+	CString message;
+	message.Format(L"%d - %.3f\n", tx.cmd, m_currentTargetTemp);
+	::OutputDebugString(message);
+	*/
+
 	// pid 값을 buffer 에 복사한다.
 	
 	memcpy(&(tx.pid_p1), &(m_kp), sizeof(float));
@@ -1458,8 +1676,9 @@ LRESULT CMicroPCRDlg::OnmmTimer(WPARAM wParam, LPARAM lParam)
 	CString out;
 	double lights = (double)(photodiode_h & 0x0f)*255. + (double)(photodiode_l);
 	
-	out.Format(L"%3.1f %d %d", lights, currentCmd, rx.state);
-	SetDlgItemText(IDC_EDIT_PHOTODIODE, out);
+	// 180629 YJ not used
+	// out.Format(L"%3.1f %d %d", lights, currentCmd, rx.state);
+	// SetDlgItemText(IDC_EDIT_PHOTODIODE, out);
 
 	// Save the recording data.
 	if( isRecording )
@@ -1508,15 +1727,39 @@ LRESULT CMicroPCRDlg::OnmmTimer(WPARAM wParam, LPARAM lParam)
 	return FALSE;
 }
 
+// #define EMULATOR
+
+int sensorDatas[40] = {	1718, 1723, 1703, 1739, 1724,
+					1721, 1697, 1729, 1745, 1746,
+					1735, 1757, 1777, 1835, 1869,
+					2038, 2167, 2396, 2569, 2787,
+					2955, 3130, 3261, 3401, 3511,
+					3595, 3644, 3693, 3783, 3811,
+					3802, 3864, 3880, 3905, 3884, 
+					3884, 3884, 3884, 3884, 3884,};
+
 void CMicroPCRDlg::addSensorValue(double val)
 {
+	double sensorData = val;
 	// 기존에 저장된 차트를 지운 후, 
 	// 새로 저장한 double 값 vector 에 저장하여
-	// 이 값을 기반으로 다시 그림.
-	sensorValues.push_back(val);
+	// 이 값을 기반으로 다시 그;림.
+#ifdef EMULATOR
+	if (sensorValues.size() >= 40){
+		sensorData = 3884;
+	}
+	else{
+		sensorData = sensorDatas[sensorValues.size()];
+	}
+#endif
+
+	// 180614 YJ for sigmoid display
+	// change the raw display to sigmoid display
+	sensorValues.push_back(sensorData);
+	sigmoidDisplay();
 	m_Chart.DeleteAllData();
 
-	int size = sensorValues.size();
+	int size = sensorDrawingValues.size();
 
 	double *data = new double[size*2];
 	int	nDims = 2, dims[2] = { 2, size };
@@ -1524,7 +1767,7 @@ void CMicroPCRDlg::addSensorValue(double val)
 	for(int i=0; i<size; ++i)
 	{
 		data[i] = i;
-		data[i+size] = sensorValues[i];
+		data[i + size] = sensorDrawingValues[i];
 	}
 
 	m_Chart.AddData( data, nDims, dims );
@@ -1535,7 +1778,8 @@ void CMicroPCRDlg::addSensorValue(double val)
 void CMicroPCRDlg::clearSensorValue()
 {
 	sensorValues.clear();
-	sensorValues.push_back( 1.0 );
+	sensorDrawingValues.clear();
+	sensorDrawingValues.push_back(1.0);
 
 	m_Chart.DeleteAllData();
 	InvalidateRect(&CRect(15, 350, 1155, 760));
@@ -1601,6 +1845,17 @@ void CMicroPCRDlg::OnBnClickedButtonPwmApply()
 
 void CMicroPCRDlg::OnBnClickedCheckPwmUiHold()
 {
+	CString serialNumber;
+	m_cUsbList.GetLBText(1, serialNumber);
+	BOOL check = device->checkDeviceStillAlive(serialNumber);
+
+	if (check){
+		AfxMessageBox(L"test1");
+	}
+	else{
+		AfxMessageBox(L"test2");
+	}
+
 	uiHoldFlag = !uiHoldFlag;
 	
 	GetDlgItem(IDC_BUTTON_PWM_APPLY)->EnableWindow(uiHoldFlag);
@@ -1613,4 +1868,48 @@ void CMicroPCRDlg::OnBnClickedCheckPwmUiHold()
 		SetDlgItemText(IDC_CHECK_PWM_UI_HOLD, L"Locking");
 	else
 		SetDlgItemText(IDC_CHECK_PWM_UI_HOLD, L"Unlocking");
+}
+
+
+// 180630 YJ, when usb device selected.
+void CMicroPCRDlg::OnCbnSelendokComboUsbDevices()
+{
+	int idx = m_cUsbList.GetCurSel();
+
+	if (idx <= 0){
+		return;
+	}
+
+	if (!isConnected){
+		// Once the selection is complete, can't change the device
+		m_cUsbList.EnableWindow(FALSE);
+		// Save the serialNumber
+		m_cUsbList.GetLBText(idx, selectedDeviceSerial);
+
+		BOOL status = device->OpenDevice(LS4550EK_VID, LS4550EK_PID, device->GetDeviceSerialForConnection(idx - 1), TRUE);
+
+		if (status)
+		{
+			SetDlgItemText(IDC_EDIT_DEVICE_STATUS, L"Connected");
+			isConnected = true;
+
+			CString recentPath;
+			FileManager::loadRecentPath(FileManager::PROTOCOL_PATH, recentPath);
+
+			if (!recentPath.IsEmpty())
+				readProtocol(recentPath);
+			else
+				AfxMessageBox(L"No Recent Protocol File! Please Read Protocol!");
+
+			m_Timer->startTimer(TIMER_DURATION, FALSE);
+		}
+		else
+		{
+			selectedDeviceSerial = L"";
+			SetDlgItemText(IDC_EDIT_DEVICE_STATUS, L"Disconnected");
+			isConnected = false;
+		}
+	}
+
+	enableWindows();
 }

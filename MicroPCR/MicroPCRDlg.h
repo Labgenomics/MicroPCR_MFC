@@ -10,6 +10,7 @@
 #include "UserDefs.h"
 #include "mmtimers.h"
 #include "TempGraphDlg.h"
+#include "afxwin.h"
 
 // CMicroPCRDlg 대화 상자
 class CMicroPCRDlg : public CDialog
@@ -31,6 +32,7 @@ private:
 
 	CXYChart m_Chart;
 	vector< double > sensorValues;
+	vector< double > sensorDrawingValues;
 
 	int m_cGraphYMin;
 	int m_cGraphYMax;
@@ -69,10 +71,12 @@ private:
 	void displayList();
 	CString getProtocolName(CString path);
 
-	// for temporary
 	void blinkTask();
 	void timeTask();
 	void PCREndTask();
+
+	// 180614 YJ
+	void sigmoidDisplay();
 	
 	int m_blinkCounter, m_timerCounter;
 
@@ -117,6 +121,9 @@ private:
 	int freeRunningCounter;
 
 	bool emergencyStop;
+
+	// Selected device serial
+	CString selectedDeviceSerial;
 
 // 생성입니다.
 public:
@@ -170,4 +177,6 @@ public:
 	afx_msg void OnNMReleasedcaptureSliderBlue(NMHDR *pNMHDR, LRESULT *pResult);
 	int m_cGraphXVal;
 	int m_cCaptureTemper;
+	CComboBox m_cUsbList;
+	afx_msg void OnCbnSelendokComboUsbDevices();
 };

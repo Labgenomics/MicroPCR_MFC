@@ -94,6 +94,12 @@ BOOL CDeviceConnect::CheckDevice(void)
 	return FALSE;
 }
 
+void CDeviceConnect::CloseDevice(void)
+{
+	m_cDevices.CloseRead();
+	m_cDevices.CloseWrite();
+}
+
 /******************************************************************
 *	Function :	int Read(BYTE *Buffer)
 *
@@ -119,4 +125,26 @@ int CDeviceConnect::Read(void *Buffer)
 int CDeviceConnect::Write(void *Buffer)
 {
 	return m_cDevices.Write(Buffer);
+}
+
+CString CDeviceConnect::GetDeviceSerial(int idx){
+	CStringA serialNumber = m_DeviceList[idx].SerialNumber;
+	return CString(serialNumber);
+}
+
+char * CDeviceConnect::GetDeviceSerialForConnection(int idx){
+	return m_DeviceList[idx].SerialNumber;
+}
+
+BOOL CDeviceConnect::checkDeviceStillAlive(CString serialNumber){
+	CStringA compareSerial = CStringA(serialNumber);
+	
+	int deviceNums = GetDevices();
+	for (int i = 0; i < deviceNums; ++i){
+		if (compareSerial.Compare(m_DeviceList[i].SerialNumber) == 0){
+			return TRUE;
+		}
+	}
+
+	return FALSE;
 }
